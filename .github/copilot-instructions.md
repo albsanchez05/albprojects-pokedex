@@ -1,0 +1,1 @@
+- When producing code, please ensure that the code inside the parenthesis has to leave a space before and after. For example, instead of writing `function ( arg )`, write `function( arg )`.
