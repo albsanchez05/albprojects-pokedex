@@ -77,7 +77,7 @@ pokedex/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/pokedex.git
+git clone https://github.com/albsanchez05/albprojects-pokedex.git
 cd pokedex
 ```
 
