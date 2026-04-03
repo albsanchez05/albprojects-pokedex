@@ -40,34 +40,40 @@ class PokemonServiceTest
     @BeforeEach
     void setUp( )
     {
-        MockitoAnnotations.openMocks( this );
+        try ( AutoCloseable mocks = MockitoAnnotations.openMocks( this ) )
+        {
+            pokemon = new Pokemon();
+            pokemon.setId( 1L );
+            pokemon.setPokedexId( 1 );
+            pokemon.setName( "Bulbasaur" );
+            pokemon.setType1( "Grass" );
+            pokemon.setType2( "Poison" );
+            pokemon.setHp( 45 );
+            pokemon.setAttack( 49 );
+            pokemon.setDefense( 49 );
+            pokemon.setSpAttack( 65 );
+            pokemon.setSpDefense( 65 );
+            pokemon.setSpeed( 45 );
+            pokemon.setImage( "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" );
+            pokemon.setCaptured( false );
 
-        pokemon = new Pokemon();
-        pokemon.setId( 1L );
-        pokemon.setPokedexId( 1 );
-        pokemon.setName( "Bulbasaur" );
-        pokemon.setType1( "Grass" );
-        pokemon.setType2( "Poison" );
-        pokemon.setHp( 45 );
-        pokemon.setAttack( 49 );
-        pokemon.setDefense( 49 );
-        pokemon.setSpAttack( 65 );
-        pokemon.setSpDefense( 65 );
-        pokemon.setSpeed( 45 );
-
-        pokemonCompleteDTO = new PokemonCompleteDTO(
-                1,
-                "Bulbasaur",
-                "Grass",
-                "Poison",
-                45,
-                49,
-                49,
-                65,
-                65,
-                45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
-        );
+            pokemonCompleteDTO = new PokemonCompleteDTO(
+                    1,
+                    "Bulbasaur",
+                    "Grass",
+                    "Poison",
+                    45,
+                    49,
+                    49,
+                    65,
+                    65,
+                    45,
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                    false
+            );
+        } catch ( Exception e ) {
+            fail( "Mock initialization failed" );
+        }
     }
 
     @Test
@@ -102,6 +108,7 @@ class PokemonServiceTest
         assertEquals( 1, result.pokemonId() );
         assertEquals( "Bulbasaur", result.name() );
         assertEquals( "Grass", result.type1() );
+        // We aren't testing captured in PokemonCompleteDTO anymore.
 
         verify( pokemonRepository, times( 1 ) ).findByPokedexId( 1 );
     }
@@ -133,29 +140,6 @@ class PokemonServiceTest
     }
 
     @Test
-    @DisplayName( "registerPokemon should throw exception when ID exceeds 151" )
-    void testRegisterPokemonIdExceedsLimit( )
-    {
-        PokemonCompleteDTO invalidPokemon = new PokemonCompleteDTO(
-                152,
-                "Chikorita",
-                "Grass",
-                null,
-                45,
-                49,
-                65,
-                49,
-                65,
-                45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png"
-        );
-
-        assertThrows( PokemonLimitIdException.class, () -> pokemonService.registerPokemon( invalidPokemon ) );
-
-        verify( pokemonRepository, never() ).save( any( Pokemon.class ) );
-    }
-
-    @Test
     @DisplayName( "registerPokemon should throw exception when ID already exists" )
     void testRegisterPokemonIdAlreadyExists( )
     {
@@ -182,95 +166,59 @@ class PokemonServiceTest
     }
 
     @Test
-    @DisplayName( "capturePokemon should return pokemon when both ID and name match" )
+    @DisplayName( "capturePokemon should update captured status and return pokemon" )
     void testCapturePokemonSuccess( )
     {
-        when( pokemonRepository.existsByPokedexIdAndName( 1, "Bulbasaur" ) ).thenReturn( true );
         when( pokemonRepository.findByPokedexId( 1 ) ).thenReturn( Optional.of( pokemon ) );
+        when( pokemonRepository.save( any( Pokemon.class ) ) ).thenReturn( pokemon );
 
-        PokemonCompleteDTO result = pokemonService.capturePokemon( 1, "Bulbasaur" );
+        PokemonCompleteDTO result = pokemonService.capturePokemon( 1, true );
 
         assertNotNull( result );
         assertEquals( 1, result.pokemonId() );
         assertEquals( "Bulbasaur", result.name() );
+        // We aren't testing captured in PokemonCompleteDTO anymore.
 
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexIdAndName( 1, "Bulbasaur" );
         verify( pokemonRepository, times( 1 ) ).findByPokedexId( 1 );
+        verify( pokemonRepository, times( 1 ) ).save( any( Pokemon.class ) );
     }
 
     @Test
-    @DisplayName( "capturePokemon should throw exception when ID exists but name does not match" )
-    void testCapturePokemonIdExistsDifferentName( )
+    @DisplayName( "capturePokemon should throw exception when pokemon does not exist" )
+    void testCapturePokemonNotFound( )
     {
-        when( pokemonRepository.existsByPokedexIdAndName( 1, "Charmander" ) ).thenReturn( false );
-        when( pokemonRepository.existsByPokedexId( 1 ) ).thenReturn( true );
+        when( pokemonRepository.findByPokedexId( 999 ) ).thenReturn( Optional.empty() );
 
-        assertThrows( PokemonNameAlreadyExistsException.class, () -> pokemonService.capturePokemon( 1, "Charmander" ) );
+        assertThrows( PokemonNotFoundException.class, () -> pokemonService.capturePokemon( 999, true ) );
 
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexIdAndName( 1, "Charmander" );
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexId( 1 );
+        verify( pokemonRepository, times( 1 ) ).findByPokedexId( 999 );
+        verify( pokemonRepository, never() ).save( any( Pokemon.class ) );
     }
 
     @Test
-    @DisplayName( "capturePokemon should throw exception when name exists but ID does not match" )
-    void testCapturePokemonNameExistsDifferentId( )
-    {
-        when( pokemonRepository.existsByPokedexIdAndName( 2, "Bulbasaur" ) ).thenReturn( false );
-        when( pokemonRepository.existsByPokedexId( 2 ) ).thenReturn( false );
-        when( pokemonRepository.existsByName( "Bulbasaur" ) ).thenReturn( true );
-
-        assertThrows( PokemonIdAlreadyExistsException.class, () -> pokemonService.capturePokemon( 2, "Bulbasaur" ) );
-
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexIdAndName( 2, "Bulbasaur" );
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexId( 2 );
-        verify( pokemonRepository, times( 1 ) ).existsByName( "Bulbasaur" );
-    }
-
-    @Test
-    @DisplayName( "capturePokemon should throw exception when pokemon is not registered" )
-    void testCapturePokemonNotRegistered( )
-    {
-        when( pokemonRepository.existsByPokedexIdAndName( 999, "Unknown" ) ).thenReturn( false );
-        when( pokemonRepository.existsByPokedexId( 999 ) ).thenReturn( false );
-        when( pokemonRepository.existsByName( "Unknown" ) ).thenReturn( false );
-
-        assertThrows( PokemonNotCapturedException.class, () -> pokemonService.capturePokemon( 999, "Unknown" ) );
-
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexIdAndName( 999, "Unknown" );
-    }
-
-    @Test
-    @DisplayName( "releasePokemon should delete pokemon when it exists" )
-    void testReleasePokemonSuccess( )
+    @DisplayName( "unregisterPokemon should delete pokemon when it exists" )
+    void testUnregisterPokemonSuccess( )
     {
         when( pokemonRepository.existsByPokedexId( 1 ) ).thenReturn( true );
 
-        pokemonService.releasePokemon( 1 );
+        pokemonService.unregisterPokemon( 1 );
 
         verify( pokemonRepository, times( 1 ) ).existsByPokedexId( 1 );
         verify( pokemonRepository, times( 1 ) ).deleteByPokedexId( 1 );
     }
 
     @Test
-    @DisplayName( "releasePokemon should throw exception when pokemon does not exist" )
-    void testReleasePokemonNotFound( )
+    @DisplayName( "unregisterPokemon should throw exception when pokemon does not exist" )
+    void testUnregisterPokemonNotFound( )
     {
         when( pokemonRepository.existsByPokedexId( 999 ) ).thenReturn( false );
 
-        assertThrows( PokemonNotFoundException.class, () -> pokemonService.releasePokemon( 999 ) );
+        assertThrows( PokemonNotFoundException.class, () -> pokemonService.unregisterPokemon( 999 ) );
 
         verify( pokemonRepository, times( 1 ) ).existsByPokedexId( 999 );
         verify( pokemonRepository, never() ).deleteByPokedexId( 999 );
     }
 
-    @Test
-    @DisplayName( "releaseAllPokemons should delete all pokemons" )
-    void testReleaseAllPokemons( )
-    {
-        pokemonService.releaseAllPokemons();
-
-        verify( pokemonRepository, times( 1 ) ).deleteAll();
-    }
 
     @Test
     @DisplayName( "existsByPokedexId should return true when pokemon exists" )

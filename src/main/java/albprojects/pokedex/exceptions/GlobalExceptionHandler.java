@@ -25,19 +25,6 @@ public class GlobalExceptionHandler
         return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( errorResponse );
     }
 
-    @ExceptionHandler( PokemonLimitIdException.class )
-    public ResponseEntity<Map<String, Object>> handlePokemonLimitId( PokemonLimitIdException e, WebRequest request )
-    {
-        Map<String, Object> errorResponse = Map.of(
-                "timestamp", Instant.now(),
-                "status", 400,
-                "error", "Bad Request",
-                "message", e.getMessage(),
-                "path", request.getDescription( false ).replace( "uri=", "" )
-        );
-        return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( errorResponse );
-    }
-
     @ExceptionHandler( PokemonIdAlreadyExistsException.class )
     public ResponseEntity<Map<String, Object>> handlePokemonIdAlreadyExists( PokemonIdAlreadyExistsException e, WebRequest request )
     {

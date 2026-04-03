@@ -1,6 +1,5 @@
 package albprojects.pokedex;
 
-import albprojects.pokedex.dto.PokemonBriefDTO;
 import albprojects.pokedex.dto.PokemonCompleteDTO;
 import albprojects.pokedex.dto.PokemonCaptureDTO;
 import albprojects.pokedex.repository.PokemonRepository;
@@ -15,9 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,7 +40,7 @@ class PokemonControllerIntegrationTest
     {
         mockMvc = MockMvcBuilders.webAppContextSetup( webApplicationContext ).build();
         objectMapper = new ObjectMapper();
-        pokemonRepository.deleteAll(); // Limpiar la base de datos antes de cada test
+        pokemonRepository.deleteAll(); // Clean the database before every test
     }
 
     @Test
@@ -62,16 +58,16 @@ class PokemonControllerIntegrationTest
                 65,
                 65,
                 45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                false
         );
 
         mockMvc.perform( post( "/api/pokemons" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
-                .andExpect( status().isOk() )
-                .andExpect( content().string( "Pokemon registered successfully" ) );
+                .andExpect( status().isOk() );
 
-        // Verificar que se guardó en la base de datos
+        // Verify that the Pokemon was saved in the database
         assertTrue( pokemonRepository.existsByPokedexId( 1 ) );
     }
 
@@ -79,7 +75,7 @@ class PokemonControllerIntegrationTest
     @DisplayName( "POST /pokemons should return bad request when ID already exists" )
     void testRegisterPokemonIdAlreadyExists( ) throws Exception
     {
-        // Primero registrar un Pokemon
+        // First register a Pokemon
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
                 1,
                 "Bulbasaur",
@@ -91,7 +87,8 @@ class PokemonControllerIntegrationTest
                 65,
                 65,
                 45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                false
         );
 
         mockMvc.perform( post( "/api/pokemons" )
@@ -99,21 +96,21 @@ class PokemonControllerIntegrationTest
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
                 .andExpect( status().isOk() );
 
-        // Intentar registrar el mismo ID
+        // Try to register the same Pokemon again
         mockMvc.perform( post( "/api/pokemons" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
                 .andExpect( status().isBadRequest() )
                 .andExpect( jsonPath( "$.status" ).value( 400 ) )
                 .andExpect( jsonPath( "$.error" ).value( "Bad Request" ) )
-                .andExpect( jsonPath( "$.message" ).value( "Pokemon with this ID has already been captured" ) );
+                .andExpect( jsonPath( "$.message" ).value( "Pokemon with this ID has already been registered" ) );
     }
 
     @Test
     @DisplayName( "GET /pokemons should return a page of pokemons" )
     void testGetAllPokemons( ) throws Exception
     {
-        // Registrar algunos Pokemon primero
+        // Register multiple Pokemons
         PokemonCompleteDTO bulbasaur = new PokemonCompleteDTO(
                 1,
                 "Bulbasaur",
@@ -125,7 +122,8 @@ class PokemonControllerIntegrationTest
                 65,
                 65,
                 45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                false
         );
 
         PokemonCompleteDTO charmander = new PokemonCompleteDTO(
@@ -139,7 +137,8 @@ class PokemonControllerIntegrationTest
                 60,
                 50,
                 65,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
+                false
         );
 
         mockMvc.perform( post( "/api/pokemons" )
@@ -152,7 +151,7 @@ class PokemonControllerIntegrationTest
                         .content( objectMapper.writeValueAsString( charmander ) ) )
                 .andExpect( status().isOk() );
 
-        // Obtener todos
+        // Get all Pokemons
         mockMvc.perform( get( "/api/pokemons" )
                         .param( "page", "0" )
                         .param( "size", "10" ) )
@@ -178,7 +177,8 @@ class PokemonControllerIntegrationTest
                 65,
                 65,
                 45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                false
         );
 
         mockMvc.perform( post( "/api/pokemons" )
@@ -191,7 +191,8 @@ class PokemonControllerIntegrationTest
                 .andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.pokemonId" ).value( 1 ) )
                 .andExpect( jsonPath( "$.name" ).value( "Bulbasaur" ) )
-                .andExpect( jsonPath( "$.type1" ).value( "Grass" ) );
+                .andExpect( jsonPath( "$.type1" ).value( "Grass" ) )
+                .andExpect( jsonPath( "$.captured" ).value( false ) );
     }
 
     @Test
@@ -206,18 +207,7 @@ class PokemonControllerIntegrationTest
     }
 
     @Test
-    @DisplayName( "GET /pokemons/{pokedexId} should return bad request when ID is out of range" )
-    void testGetPokemonByIdOutOfRange( ) throws Exception
-    {
-        mockMvc.perform( get( "/api/pokemons/999" ) )
-                .andExpect( status().isBadRequest() )
-                .andExpect( jsonPath( "$.status" ).value( 400 ) )
-                .andExpect( jsonPath( "$.error" ).value( "Bad Request" ) )
-                .andExpect( jsonPath( "$.message" ).value( "ID must be between 1 and 151" ) );
-    }
-
-    @Test
-    @DisplayName( "POST /pokemons/capture should return pokemon when both ID and name match" )
+    @DisplayName( "POST /pokemons/{id} should update captured status successfully" )
     void testCapturePokemonSuccess( ) throws Exception
     {
         // Registrar un Pokemon
@@ -232,7 +222,8 @@ class PokemonControllerIntegrationTest
                 65,
                 65,
                 45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                true
         );
 
         mockMvc.perform( post( "/api/pokemons" )
@@ -241,34 +232,35 @@ class PokemonControllerIntegrationTest
                 .andExpect( status().isOk() );
 
         // Capturar el Pokemon
-        PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 1, "Bulbasaur" );
+        PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 1, true );
 
-        mockMvc.perform( post( "/api/pokemons/capture" )
+        mockMvc.perform( post( "/api/pokemons/1" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString( captureDTO ) ) )
                 .andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.pokemonId" ).value( 1 ) )
-                .andExpect( jsonPath( "$.name" ).value( "Bulbasaur" ) );
+                .andExpect( jsonPath( "$.name" ).value( "Bulbasaur" ) )
+                .andExpect( jsonPath( "$.captured" ).value( true ) );
     }
 
     @Test
-    @DisplayName( "POST /pokemons/capture should return not found when pokemon is not registered" )
-    void testCapturePokemonNotRegistered( ) throws Exception
+    @DisplayName( "POST /pokemons/{id} should return not found when pokemon does not exist" )
+    void testCapturePokemonNotFound( ) throws Exception
     {
-        PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 999, "Unknown" );
+        PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 999, true );
 
-        mockMvc.perform( post( "/api/pokemons/capture" )
+        mockMvc.perform( post( "/api/pokemons/999" )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString( captureDTO ) ) )
                 .andExpect( status().isNotFound() )
                 .andExpect( jsonPath( "$.status" ).value( 404 ) )
                 .andExpect( jsonPath( "$.error" ).value( "Not Found" ) )
-                .andExpect( jsonPath( "$.message" ).value( "Pokemon not registered yet" ) );
+                .andExpect( jsonPath( "$.message" ).value( "Pokemon not found with id: 999" ) );
     }
-    
+
     @Test
-    @DisplayName( "DELETE /pokemons/{pokedexId} should release pokemon successfully" )
-    void testReleasePokemonSuccess( ) throws Exception
+    @DisplayName( "DELETE /pokemons/{pokedexId} should unregister pokemon successfully and return 204" )
+    void testUnregisterPokemonSuccess( ) throws Exception
     {
         // Registrar un Pokemon
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
@@ -282,7 +274,8 @@ class PokemonControllerIntegrationTest
                 65,
                 65,
                 45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+                false
         );
 
         mockMvc.perform( post( "/api/pokemons" )
@@ -292,62 +285,9 @@ class PokemonControllerIntegrationTest
 
         // Liberar el Pokemon
         mockMvc.perform( delete( "/api/pokemons/1" ) )
-                .andExpect( status().isOk() )
-                .andExpect( content().string( "Pokemon N. 1 has been released successfully" ) );
+                .andExpect( status().isNoContent() );
 
         // Verificar que ya no existe
         assertFalse( pokemonRepository.existsByPokedexId( 1 ) );
-    }
-
-    @Test
-    @DisplayName( "DELETE /pokemons should release all pokemons" )
-    void testReleaseAllPokemons( ) throws Exception
-    {
-        // Registrar algunos Pokemon
-        PokemonCompleteDTO bulbasaur = new PokemonCompleteDTO(
-                1,
-                "Bulbasaur",
-                "Grass",
-                "Poison",
-                45,
-                49,
-                49,
-                65,
-                65,
-                45,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
-        );
-
-        PokemonCompleteDTO charmander = new PokemonCompleteDTO(
-                4,
-                "Charmander",
-                "Fire",
-                null,
-                39,
-                52,
-                43,
-                60,
-                50,
-                65,
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png"
-        );
-
-        mockMvc.perform( post( "/api/pokemons" )
-                        .contentType( MediaType.APPLICATION_JSON )
-                        .content( objectMapper.writeValueAsString( bulbasaur ) ) )
-                .andExpect( status().isOk() );
-
-        mockMvc.perform( post( "/api/pokemons" )
-                        .contentType( MediaType.APPLICATION_JSON )
-                        .content( objectMapper.writeValueAsString( charmander ) ) )
-                .andExpect( status().isOk() );
-
-        // Liberar todos
-        mockMvc.perform( delete( "/api/pokemons" ) )
-                .andExpect( status().isOk() )
-                .andExpect( content().string( "All pokemons have been released successfully" ) );
-
-        // Verificar que no quedan Pokemon
-        assertEquals( 0, pokemonRepository.count() );
     }
 }

@@ -42,6 +42,9 @@ public class Pokemon
     @Column( nullable = false ) // JPA annotation to specify the column name
     private Integer speed;
 
-    @Column
+    @Column( nullable = false )
     private String image;
+
+    @Column( nullable = false )
+    private boolean captured;
 }

@@ -8,10 +8,9 @@ import java.util.Optional;
 // Repository interface for Pokemon entities, extending JpaRepository to provide CRUD operations
 
 @Repository
-public interface PokemonRepository extends JpaRepository< Pokemon, Long > {
+public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     boolean existsByPokedexId( Integer pokedexId );
     boolean existsByName( String name );
-    boolean existsByPokedexIdAndName( Integer pokedexId, String name );
     void deleteByPokedexId( Integer pokedexId );
     Optional<Pokemon> findByPokedexId( Integer pokedexId );
 }

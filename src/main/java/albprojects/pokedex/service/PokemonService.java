@@ -18,12 +18,12 @@ public class PokemonService {
 
     public Page<PokemonBriefDTO> getAllPokemons( Pageable pageable ) {
         return pokemonRepository.findAll( pageable )
-                .map(pokemon -> new PokemonBriefDTO( pokemon.getPokedexId(), pokemon.getName(), pokemon.getImage() ) );
+                .map( pokemon -> new PokemonBriefDTO( pokemon.getPokedexId(), pokemon.getName(), pokemon.getImage() ) );
     }
 
-    public PokemonCompleteDTO getPokemonById(Integer pokedexId) {
-        return pokemonRepository.findByPokedexId(pokedexId)
-                .map(pokemon -> new PokemonCompleteDTO(
+    public PokemonCompleteDTO getPokemonById( Integer pokedexId ) {
+        return pokemonRepository.findByPokedexId( pokedexId )
+                .map( pokemon -> new PokemonCompleteDTO(
                         pokemon.getPokedexId(),
                         pokemon.getName(),
                         pokemon.getType1(),
@@ -34,26 +34,23 @@ public class PokemonService {
                         pokemon.getSpAttack(),
                         pokemon.getSpDefense(),
                         pokemon.getSpeed(),
-                        pokemon.getImage()
-                ))
-                .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found with id: " + pokedexId));
+                        pokemon.getImage(),
+                        pokemon.isCaptured()
+                ) )
+                .orElseThrow( () -> new PokemonNotFoundException( "Pokemon not found with id: " + pokedexId ) );
     }
 
     @Transactional
     public void registerPokemon( PokemonCompleteDTO pokemonCompleteDTO )
     {
         Integer pokedexId = pokemonCompleteDTO.pokemonId();
-        if( pokedexId > 151 )
-        {
-            throw new PokemonLimitIdException( "ID cannot exceed the Pokedex limit" );
-        }
         if( pokemonRepository.existsByPokedexId( pokedexId ) )
         {
-            throw new PokemonIdAlreadyExistsException( "Pokemon with this ID has already been captured" );
+            throw new PokemonIdAlreadyExistsException( "Pokemon with this ID has already been registered" );
         }
         if( pokemonRepository.existsByName( pokemonCompleteDTO.name() ) )
         {
-            throw new PokemonNameAlreadyExistsException( "Pokemon with this name has already been captured" );
+            throw new PokemonNameAlreadyExistsException( "Pokemon with this name has already been registered" );
         }
 
         Pokemon pokemon = new Pokemon();
@@ -69,34 +66,42 @@ public class PokemonService {
         pokemon.setSpDefense( pokemonCompleteDTO.spDefense() );
         pokemon.setSpeed( pokemonCompleteDTO.speed() );
         pokemon.setImage( pokemonCompleteDTO.image() );
+        pokemon.setCaptured( false ); // Always set to false on registration
 
         pokemonRepository.save( pokemon );
     }
 
-    public PokemonCompleteDTO capturePokemon(Integer pokedexId, String name) {
-        if (pokemonRepository.existsByPokedexIdAndName(pokedexId, name)) {
-            return getPokemonById(pokedexId);
-        }
-        if (pokemonRepository.existsByPokedexId(pokedexId)) {
-            throw new PokemonNameAlreadyExistsException("Pokemon with this ID has already been captured");
-        } else if (pokemonRepository.existsByName(name)) {
-            throw new PokemonIdAlreadyExistsException("Pokemon with this name has already been captured");
-        } else {
-            throw new PokemonNotCapturedException("Pokemon not registered yet");
-        }
+    @Transactional
+    public PokemonCompleteDTO capturePokemon( Integer pokedexId, Boolean captured )
+    {
+        Pokemon pokemon = pokemonRepository.findByPokedexId( pokedexId )
+                .orElseThrow( () -> new PokemonNotFoundException( "Pokemon not found with id: " + pokedexId ) );
+
+        pokemon.setCaptured( captured );
+        pokemonRepository.save( pokemon );
+
+        return new PokemonCompleteDTO(
+                pokemon.getPokedexId(),
+                pokemon.getName(),
+                pokemon.getType1(),
+                pokemon.getType2(),
+                pokemon.getHp(),
+                pokemon.getAttack(),
+                pokemon.getDefense(),
+                pokemon.getSpAttack(),
+                pokemon.getSpDefense(),
+                pokemon.getSpeed(),
+                pokemon.getImage(),
+                pokemon.isCaptured()
+        );
     }
 
     @Transactional
-    public void releasePokemon( Integer pokedexId ) {
-        if ( !existsByPokedexId( pokedexId ) ) {
+    public void unregisterPokemon( Integer pokedexId ) {
+        if ( !pokemonRepository.existsByPokedexId( pokedexId ) ) {
             throw new PokemonNotFoundException( "Pokemon not found with id: " + pokedexId );
         }
         pokemonRepository.deleteByPokedexId( pokedexId );
-    }
-
-    @Transactional
-    public void releaseAllPokemons() {
-        pokemonRepository.deleteAll();
     }
 
     public boolean existsByPokedexId( Integer pokedexId ) {
