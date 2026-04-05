@@ -5,6 +5,7 @@ import albprojects.pokedex.dto.PokemonCaptureDTO;
 import albprojects.pokedex.dto.PokemonCompleteDTO;
 import albprojects.pokedex.exceptions.PokemonNotFoundException;
 import albprojects.pokedex.service.PokemonService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public class PokemonController implements PokemonControllerAPI {
 
     @Override
     @GetMapping( "/pokemons" )
-    public Page<PokemonBriefDTO> getAllPokemons( @PageableDefault( page = DEFAULT_PAGE_NUMBER, size = DEFAULT_PAGE_SIZE ) Pageable pageable ) {
+    public Page<PokemonBriefDTO> getAllPokemons( @Parameter( hidden = true ) @PageableDefault( page = DEFAULT_PAGE_NUMBER, size = DEFAULT_PAGE_SIZE ) Pageable pageable ) {
         return pokemonService.getAllPokemons( pageable );
     }
 

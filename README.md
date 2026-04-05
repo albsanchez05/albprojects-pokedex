@@ -14,7 +14,7 @@ This project implements a digital Pokédex that allows:
 - Register newly discovered Pokémon (by Professor Oak)
 - Update the capture status of a Pokémon (by a Trainer)
 - Query detailed information of existing Pokémon
-- List all Pokémon with pagination
+- List all Pokémon with pagination (sorted by Pokedex ID in ascending order)
 - Delete Pokémon from the registry
 
 The application follows a clean architecture with separation of responsibilities between controllers, services, and repositories.
@@ -25,16 +25,17 @@ The application follows a clean architecture with separation of responsibilities
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/pokemons` | Paginated list of all Pokémon (ID, name, image) |
+| `GET` | `/api/pokemons` | Paginated list of all Pokémon (ID, name, image). Returns a 404 if the requested page does not exist. |
 | `GET` | `/api/pokemons/{id}` | Complete details of a specific Pokémon (including captured status) |
 | `POST` | `/api/pokemons` | Register a newly discovered Pokémon (defaults to `captured = false`) |
 | `POST` | `/api/pokemons/{id}` | Update capture status of an existing Pokémon |
-| `DELETE` | `/api/pokemons/{id}` | Delete a Pokémon from the registry |
+| `DELETE` | `/api/pokemons/{id}` | Delete a Pokémon from the registry. Returns 204 No Content. |
 
 ### Business Rules
-- Duplicate Pokémon by ID or name are not allowed
+- Duplicate Pokémon by ID or name are not allowed.
 - All fields in the registration request are required, except for `type2`.
 - Input data is validated to ensure integrity (e.g., positive numbers for stats, non-empty names).
+- The `captured` status is strictly controlled: it defaults to `false` on registration and is excluded from the registration request schema.
 
 ## 🛠️ Technologies Used
 
@@ -113,7 +114,9 @@ The application will be available at `http://localhost:8080`.
 
 ## 📚 API Documentation
 
-The API is documented using **Swagger**. Once the application is running, you can access the interactive API documentation at:
+The API is documented using **Swagger**. The Swagger configuration has been fine-tuned to ensure a clean, accurate representation of the API, including hidden pageable parameters and read-only schema properties. 
+
+Once the application is running, you can access the interactive API documentation at:
 
 [**http://localhost:8080/swagger-ui.html**](http://localhost:8080/swagger-ui.html)
 

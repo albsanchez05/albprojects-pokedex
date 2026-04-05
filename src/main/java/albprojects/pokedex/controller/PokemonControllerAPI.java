@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,8 @@ public interface PokemonControllerAPI {
 
     @Operation( summary = "Get all Pokemons", description = "Retrieve a paginated list of all Pokemons in the Pokedex" )
     @ApiResponse( responseCode = "200", description = "Successfully retrieved the list of Pokemons" )
-    Page<PokemonBriefDTO> getAllPokemons( @ParameterObject Pageable pageable );
+    @ApiResponse( responseCode = "404", description = "The requested page does not exist" )
+    Page<PokemonBriefDTO> getAllPokemons( @Parameter( hidden = true ) Pageable pageable );
 
     @Operation( summary = "Get Pokemon by Pokedex ID", description = "Retrieve detailed information about a specific Pokemon using its Pokedex ID" )
     @ApiResponse( responseCode = "200", description = "Successfully retrieved the Pokemon details" )

@@ -1,6 +1,8 @@
 package albprojects.pokedex.repository;
 
 import albprojects.pokedex.model.Pokemon;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
@@ -13,4 +15,5 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     boolean existsByName( String name );
     void deleteByPokedexId( Integer pokedexId );
     Optional<Pokemon> findByPokedexId( Integer pokedexId );
+    Page<Pokemon> findAllByOrderByPokedexIdAsc( Pageable pageable );
 }

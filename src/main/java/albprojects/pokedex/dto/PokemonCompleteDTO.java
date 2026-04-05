@@ -28,6 +28,6 @@ public record PokemonCompleteDTO (
         Integer speed,
         @NotBlank
         String image,
-        @Schema( hidden = true )
+        @Schema( accessMode = Schema.AccessMode.READ_ONLY, example = "false", description = "Indicates if the Pokemon has been captured" )
         Boolean captured
 ) {}

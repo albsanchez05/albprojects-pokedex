@@ -85,7 +85,7 @@ class PokemonServiceTest
         pokemonList.add( pokemon );
         Page<Pokemon> pokemonPage = new PageImpl<>( pokemonList );
 
-        when( pokemonRepository.findAll( pageable ) ).thenReturn( pokemonPage );
+        when( pokemonRepository.findAllByOrderByPokedexIdAsc( pageable ) ).thenReturn( pokemonPage );
 
         Page<PokemonBriefDTO> result = pokemonService.getAllPokemons( pageable );
 
@@ -93,8 +93,22 @@ class PokemonServiceTest
         assertEquals( 1, result.getTotalElements() );
         assertEquals( "Bulbasaur", result.getContent().get( 0 ).name() );
 
-        verify( pokemonRepository, times( 1 ) ).findAll( pageable );
+        verify( pokemonRepository, times( 1 ) ).findAllByOrderByPokedexIdAsc( pageable );
     }
+
+    @Test
+    @DisplayName( "getAllPokemons should throw PageNotFoundException if page is empty and pageNumber > 0" )
+    void testGetAllPokemonsPageNotFound( )
+    {
+        Pageable pageable = PageRequest.of( 1, 10 );
+        Page<Pokemon> emptyPage = new PageImpl<>( new ArrayList<>() );
+
+        when( pokemonRepository.findAllByOrderByPokedexIdAsc( pageable ) ).thenReturn( emptyPage );
+
+        assertThrows( PageNotFoundException.class, () -> pokemonService.getAllPokemons( pageable ) );
+        verify( pokemonRepository, times( 1 ) ).findAllByOrderByPokedexIdAsc( pageable );
+    }
+
 
     @Test
     @DisplayName( "getPokemonById should return PokemonCompleteDTO when pokemon exists" )

@@ -64,4 +64,17 @@ public class GlobalExceptionHandler
         return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( errorResponse );
     }
 
+    @ExceptionHandler( PageNotFoundException.class )
+    public ResponseEntity<Map<String, Object>> handlePageNotFound( PageNotFoundException e, WebRequest request )
+    {
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", Instant.now(),
+                "status", 404,
+                "error", "Not Found",
+                "message", e.getMessage(),
+                "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( errorResponse );
+    }
+
 }

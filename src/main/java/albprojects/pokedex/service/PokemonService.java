@@ -17,8 +17,11 @@ public class PokemonService {
     PokemonRepository pokemonRepository;
 
     public Page<PokemonBriefDTO> getAllPokemons( Pageable pageable ) {
-        return pokemonRepository.findAll( pageable )
-                .map( pokemon -> new PokemonBriefDTO( pokemon.getPokedexId(), pokemon.getName(), pokemon.getImage() ) );
+        Page<Pokemon> pokemonPage = pokemonRepository.findAllByOrderByPokedexIdAsc( pageable );
+        if ( pokemonPage.isEmpty() && pageable.getPageNumber() > 0 ) {
+            throw new PageNotFoundException( "The requested page does not exist." );
+        }
+        return pokemonPage.map( pokemon -> new PokemonBriefDTO( pokemon.getPokedexId(), pokemon.getName(), pokemon.getImage() ) );
     }
 
     public PokemonCompleteDTO getPokemonById( Integer pokedexId ) {
