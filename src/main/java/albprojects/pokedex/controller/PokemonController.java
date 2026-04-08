@@ -47,8 +47,8 @@ public class PokemonController implements PokemonControllerAPI {
 
     @Override
     @PostMapping( "/pokemons" )
-    public void registerPokemon( @Valid @RequestBody PokemonCompleteDTO pokemonCompleteDTO ) {
-        pokemonService.registerPokemon( pokemonCompleteDTO );
+    public PokemonCompleteDTO registerPokemon( @Valid @RequestBody PokemonCompleteDTO pokemonCompleteDTO ) {
+        return pokemonService.registerPokemon( pokemonCompleteDTO );
     }
 
     @Override

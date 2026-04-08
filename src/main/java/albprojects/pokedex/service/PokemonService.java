@@ -44,7 +44,7 @@ public class PokemonService {
     }
 
     @Transactional
-    public void registerPokemon( PokemonCompleteDTO pokemonCompleteDTO )
+    public PokemonCompleteDTO registerPokemon( PokemonCompleteDTO pokemonCompleteDTO )
     {
         Integer pokedexId = pokemonCompleteDTO.pokemonId();
         if( pokemonRepository.existsByPokedexId( pokedexId ) )
@@ -72,6 +72,21 @@ public class PokemonService {
         pokemon.setCaptured( false ); // Always set to false on registration
 
         pokemonRepository.save( pokemon );
+
+        return new PokemonCompleteDTO(
+                pokemon.getPokedexId(),
+                pokemon.getName(),
+                pokemon.getType1(),
+                pokemon.getType2(),
+                pokemon.getHp(),
+                pokemon.getAttack(),
+                pokemon.getDefense(),
+                pokemon.getSpAttack(),
+                pokemon.getSpDefense(),
+                pokemon.getSpeed(),
+                pokemon.getImage(),
+                pokemon.isCaptured()
+        );
     }
 
     @Transactional
@@ -101,9 +116,6 @@ public class PokemonService {
 
     @Transactional
     public void unregisterPokemon( Integer pokedexId ) {
-        if ( !pokemonRepository.existsByPokedexId( pokedexId ) ) {
-            throw new PokemonNotFoundException( "Pokemon not found with id: " + pokedexId );
-        }
         pokemonRepository.deleteByPokedexId( pokedexId );
     }
 

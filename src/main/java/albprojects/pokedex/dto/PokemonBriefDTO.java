@@ -5,6 +5,10 @@ package albprojects.pokedex.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema( description = "Data Transfer Object for brief Pokemon information, including ID, name, and image URL." )
-public record PokemonBriefDTO( Integer pokemonId, String name, String image )
+public record PokemonBriefDTO( 
+        @Schema( example = "1" ) Integer pokemonId, 
+        @Schema( example = "Bulbasaur" ) String name, 
+        @Schema( example = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" ) String image 
+)
 {
 }

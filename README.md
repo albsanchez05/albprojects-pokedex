@@ -24,7 +24,7 @@ The application follows a clean architecture with separation of responsibilities
 ### API Endpoints
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
+| :--- | :--- | :--- |
 | `GET` | `/api/pokemons` | Paginated list of all Pokémon (ID, name, image). Returns a 404 if the requested page does not exist. |
 | `GET` | `/api/pokemons/{id}` | Complete details of a specific Pokémon (including captured status) |
 | `POST` | `/api/pokemons` | Register a newly discovered Pokémon (defaults to `captured = false`) |
@@ -160,8 +160,8 @@ The full Pokémon object with the updated `captured` status.
 
 This is **Phase 1** of the Pokédex project. Future phases will include:
 
-- **Phase 2**: Web user interface
-- **Phase 3**: Authentication and multiple users
+- **Phase 2**: Authentication and multiple users
+- **Phase 3**: Web user interface
 - **Phase 4**: Integration with external APIs (PokéAPI)
 - **Phase 5**: Advanced features (evolutions, moves, etc.)
 
