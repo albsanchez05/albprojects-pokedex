@@ -80,7 +80,7 @@ pokedex/
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/albsanchez05/albprojects-pokedex.git
-cd pokedex
+cd albprojects-pokedex
 ```
 
 ### 2. Configure the Database
