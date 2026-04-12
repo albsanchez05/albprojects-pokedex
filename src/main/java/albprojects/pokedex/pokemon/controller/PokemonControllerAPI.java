@@ -1,8 +1,8 @@
-package albprojects.pokedex.controller;
+package albprojects.pokedex.pokemon.controller;
 
-import albprojects.pokedex.dto.PokemonBriefDTO;
-import albprojects.pokedex.dto.PokemonCaptureDTO;
-import albprojects.pokedex.dto.PokemonCompleteDTO;
+import albprojects.pokedex.pokemon.dto.PokemonBriefDTO;
+import albprojects.pokedex.pokemon.dto.PokemonCaptureDTO;
+import albprojects.pokedex.pokemon.dto.PokemonCompleteDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

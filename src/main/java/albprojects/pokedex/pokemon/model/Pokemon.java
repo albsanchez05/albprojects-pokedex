@@ -1,4 +1,4 @@
-package albprojects.pokedex.model;
+package albprojects.pokedex.pokemon.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;

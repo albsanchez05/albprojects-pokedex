@@ -1,4 +1,4 @@
-package albprojects.pokedex.config;
+package albprojects.pokedex.common.config;
 
 public class SwaggerConfig {
 

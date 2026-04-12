@@ -1,10 +1,13 @@
-package albprojects.pokedex.service;
+package albprojects.pokedex.pokemon.service;
 
-import albprojects.pokedex.dto.PokemonBriefDTO;
-import albprojects.pokedex.dto.PokemonCompleteDTO;
-import albprojects.pokedex.exceptions.*;
-import albprojects.pokedex.model.Pokemon;
-import albprojects.pokedex.repository.PokemonRepository;
+import albprojects.pokedex.common.exceptions.PageNotFoundException;
+import albprojects.pokedex.common.exceptions.PokemonIdAlreadyExistsException;
+import albprojects.pokedex.common.exceptions.PokemonNameAlreadyExistsException;
+import albprojects.pokedex.common.exceptions.PokemonNotFoundException;
+import albprojects.pokedex.pokemon.dto.PokemonBriefDTO;
+import albprojects.pokedex.pokemon.dto.PokemonCompleteDTO;
+import albprojects.pokedex.pokemon.model.Pokemon;
+import albprojects.pokedex.pokemon.repository.PokemonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,6 +1,6 @@
-package albprojects.pokedex.repository;
+package albprojects.pokedex.pokemon.repository;
 
-import albprojects.pokedex.model.Pokemon;
+import albprojects.pokedex.pokemon.model.Pokemon;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

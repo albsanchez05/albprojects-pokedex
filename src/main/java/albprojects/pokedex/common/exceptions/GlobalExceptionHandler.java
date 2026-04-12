@@ -1,4 +1,4 @@
-package albprojects.pokedex.exceptions;
+package albprojects.pokedex.common.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

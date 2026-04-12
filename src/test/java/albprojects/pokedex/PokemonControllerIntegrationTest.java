@@ -1,8 +1,8 @@
 package albprojects.pokedex;
 
-import albprojects.pokedex.dto.PokemonCompleteDTO;
-import albprojects.pokedex.dto.PokemonCaptureDTO;
-import albprojects.pokedex.repository.PokemonRepository;
+import albprojects.pokedex.pokemon.dto.PokemonCompleteDTO;
+import albprojects.pokedex.pokemon.dto.PokemonCaptureDTO;
+import albprojects.pokedex.pokemon.repository.PokemonRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
