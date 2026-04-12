@@ -216,24 +216,19 @@ class PokemonServiceTest
     @DisplayName( "unregisterPokemon should delete pokemon when it exists" )
     void testUnregisterPokemonSuccess( )
     {
-        when( pokemonRepository.existsByPokedexId( 1 ) ).thenReturn( true );
-
         pokemonService.unregisterPokemon( 1 );
 
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexId( 1 );
         verify( pokemonRepository, times( 1 ) ).deleteByPokedexId( 1 );
     }
 
     @Test
-    @DisplayName( "unregisterPokemon should throw exception when pokemon does not exist" )
+    @DisplayName( "unregisterPokemon should do nothing when pokemon does not exist" )
     void testUnregisterPokemonNotFound( )
     {
-        when( pokemonRepository.existsByPokedexId( 999 ) ).thenReturn( false );
+        assertDoesNotThrow( () -> pokemonService.unregisterPokemon( 999 ) );
 
-        assertThrows( PokemonNotFoundException.class, () -> pokemonService.unregisterPokemon( 999 ) );
-
-        verify( pokemonRepository, times( 1 ) ).existsByPokedexId( 999 );
-        verify( pokemonRepository, never() ).deleteByPokedexId( 999 );
+        verify( pokemonRepository, times( 1 ) ).deleteByPokedexId( 999 );
+        verify( pokemonRepository, never() ).existsByPokedexId( anyInt() );
     }
 
 

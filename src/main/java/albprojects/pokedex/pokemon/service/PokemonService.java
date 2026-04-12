@@ -118,7 +118,8 @@ public class PokemonService {
     }
 
     @Transactional
-    public void unregisterPokemon( Integer pokedexId ) {
+    public void unregisterPokemon( Integer pokedexId )
+    {
         pokemonRepository.deleteByPokedexId( pokedexId );
     }
 
