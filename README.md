@@ -1,4 +1,4 @@
-# Pokédex REST API - Phase 1
+# Pokedex REST API
 
 [![Java](https://img.shields.io/badge/Java-17-orange)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.13-brightgreen)](https://spring.io/projects/spring-boot)
@@ -6,78 +6,88 @@
 [![Maven](https://img.shields.io/badge/Maven-3.9.6-red)](https://maven.apache.org/)
 [![Swagger](https://img.shields.io/badge/Swagger-3-green)](https://swagger.io/)
 
-A complete REST API for managing a Pokédex, implemented with Spring Boot. This is the **first phase** of the Pokédex project, focused on basic registration, query, and Pokémon management functionalities.
+A complete REST API for managing a Pokedex, implemented with Spring Boot. The project is delivered incrementally by phases, with each phase extending the existing baseline.
 
-## 📋 Project Description
+## Phase Progress
 
-This project implements a digital Pokédex that allows:
-- Register newly discovered Pokémon (by Professor Oak)
-- Update the capture status of a Pokémon (by a Trainer)
-- Query detailed information of existing Pokémon
-- List all Pokémon with pagination (sorted by Pokedex ID in ascending order)
-- Delete Pokémon from the registry
+- Phase 1: Completed (Pokemon CRUD API, validation, global exception handling, pagination, Swagger, tests)
+- Phase 2: In progress (authentication and authorization with Spring Security and JWT)
 
-The application follows a clean architecture with separation of responsibilities between controllers, services, and repositories.
+## Project Description
 
-## 🎯 Implemented Functional Requirements
+This project implements a digital Pokedex that allows:
+- Register newly discovered Pokemon
+- Update the capture status of a Pokemon
+- Query detailed information of existing Pokemon
+- List all Pokemon with pagination (sorted by Pokedex ID in ascending order)
+- Delete Pokemon from the registry
+
+The application follows a clean architecture with separation between feature modules and shared components.
+
+## Implemented Functional Requirements
 
 ### API Endpoints
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/pokemons` | Paginated list of all Pokémon (ID, name, image). Returns a 404 if the requested page does not exist. |
-| `GET` | `/api/pokemons/{id}` | Complete details of a specific Pokémon (including captured status) |
-| `POST` | `/api/pokemons` | Register a newly discovered Pokémon (defaults to `captured = false`) |
-| `POST` | `/api/pokemons/{id}` | Update capture status of an existing Pokémon |
-| `DELETE` | `/api/pokemons/{id}` | Delete a Pokémon from the registry. Returns 204 No Content. |
+| `GET` | `/api/pokemons` | Paginated list of all Pokemon (ID, name, image). Returns 404 if requested page does not exist. |
+| `GET` | `/api/pokemons/{id}` | Complete details of a specific Pokemon (including captured status). |
+| `POST` | `/api/pokemons` | Register a newly discovered Pokemon (defaults to `captured = false`). |
+| `POST` | `/api/pokemons/{id}` | Update capture status of an existing Pokemon. |
+| `DELETE` | `/api/pokemons/{id}` | Delete a Pokemon from the registry (idempotent behavior by business rule). |
 
 ### Business Rules
-- Duplicate Pokémon by ID or name are not allowed.
-- All fields in the registration request are required, except for `type2`.
-- Input data is validated to ensure integrity (e.g., positive numbers for stats, non-empty names).
-- The `captured` status is strictly controlled: it defaults to `false` on registration and is excluded from the registration request schema.
 
-## 🛠️ Technologies Used
+- Duplicate Pokemon by ID or name are not allowed.
+- All registration fields are required except `type2`.
+- Input data is validated to ensure integrity.
+- `captured` defaults to `false` during registration.
+- Deleting a non-existing Pokemon does not raise an error.
 
-- **Backend**: Java 17, Spring Boot 3.5.13
-- **Database**: PostgreSQL with Flyway for migrations
-- **ORM**: Spring Data JPA with Hibernate
-- **API Documentation**: Springdoc (Swagger)
-- **Validation**: Spring Boot Starter Validation
-- **Testing**: JUnit 5, Mockito, Spring Boot Test
-- **Build Tool**: Maven
-- **Container**: Docker (optional for PostgreSQL)
+## Technologies Used
 
-## 📁 Project Structure
+- Backend: Java 17, Spring Boot 3.5.13
+- Database: PostgreSQL with Flyway for migrations
+- ORM: Spring Data JPA with Hibernate
+- Security: Spring Security + JWT (JJWT)
+- API Documentation: Springdoc (Swagger)
+- Validation: Spring Boot Starter Validation
+- Testing: JUnit 5, Mockito, Spring Boot Test
+- Build Tool: Maven
+- Container: Docker (optional for PostgreSQL)
+
+## Project Structure
 
 ```
-pokedex/
+albprojects-pokedex/
 ├── src/
 │   ├── main/
 │   │   ├── java/albprojects/pokedex/
-│   │   │   ├── controller/          # REST Controllers and API interface
-│   │   │   ├── dto/                 # Data Transfer Objects (with validation)
-│   │   │   ├── exceptions/          # Custom Exceptions
-│   │   │   ├── model/               # JPA Entities
-│   │   │   ├── repository/          # Data Repositories
-│   │   │   └── service/             # Business Logic
+│   │   │   ├── auth/                # Auth domain (models, repository, services)
+│   │   │   ├── common/              # Shared config and exceptions
+│   │   │   ├── pokemon/             # Pokemon feature (controller, dto, model, repository, service)
+│   │   │   └── PokedexApplication.java
 │   │   └── resources/
-│   │       ├── db/migration/        # Flyway Migration Scripts
-│   │       └── static/              # Static Files (initial data)
-│   └── test/                        # Unit and Integration Tests
-├── docker-compose.yaml              # Docker Configuration
-├── pom.xml                          # Maven Configuration
-└── README.md                        # This Documentation
+│   │       ├── db/migration/        # Flyway migration scripts
+│   │       └── static/              # Static files (initial data)
+│   └── test/                        # Unit and integration tests
+├── docs/                            # Phase documentation
+├── .github/templates/               # Internal templates
+├── docker-compose.yaml
+├── pom.xml
+└── README.md
 ```
 
-## 🚀 Installation and Execution
+## Installation and Execution
 
 ### Prerequisites
+
 - Java 17 or higher
 - Maven 3.6+
 - PostgreSQL 12+ (or Docker to run PostgreSQL)
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/albsanchez05/albprojects-pokedex.git
 cd albprojects-pokedex
@@ -85,94 +95,46 @@ cd albprojects-pokedex
 
 ### 2. Configure the Database
 
-#### Option A: Using Docker (Recommended)
+#### Option A: Docker
+
 ```bash
 docker-compose up -d
 ```
 
 #### Option B: Local PostgreSQL
-Create a database named `mi_base_datos` with user `admin` and password `password123`.
+
+Create a database and role matching your values in `src/main/resources/application.properties`.
 
 ### 3. Run the Application
+
 ```bash
 ./mvnw spring-boot:run
 ```
 
-The application will be available at `http://localhost:8080`.
+The application is available at `http://localhost:8080`.
 
 ### 4. Run Tests
+
 ```bash
-# Unit tests
 ./mvnw test -Dtest=PokemonServiceTest
-
-# Integration tests
 ./mvnw test -Dtest=PokemonControllerIntegrationTest
-
-# All tests
 ./mvnw test
 ```
 
-## 📚 API Documentation
+## API Documentation
 
-The API is documented using **Swagger**. The Swagger configuration has been fine-tuned to ensure a clean, accurate representation of the API, including hidden pageable parameters and read-only schema properties. 
+Swagger UI:
 
-Once the application is running, you can access the interactive API documentation at:
+- `http://localhost:8080/swagger-ui.html`
 
-[**http://localhost:8080/swagger-ui.html**](http://localhost:8080/swagger-ui.html)
+## Roadmap
 
-### Example Endpoints
+- Phase 1: Core Pokemon API (completed)
+- Phase 2: Authentication and multiple users (in progress)
+- Phase 3: Web user interface
+- Phase 4: Integration with external APIs (PokeAPI)
+- Phase 5: Advanced features
 
-#### `POST /api/pokemons`
-Registers a new Pokémon. The `captured` status will be `false` by default.
+## Author
 
-**Request Body:**
-```json
-{
-  "pokemonId": 1,
-  "name": "Bulbasaur",
-  "type1": "Grass",
-  "type2": "Poison",
-  "hp": 45,
-  "attack": 49,
-  "defense": 49,
-  "spAttack": 65,
-  "spDefense": 65,
-  "speed": 45,
-  "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
-}
-```
-
-#### `POST /api/pokemons/{id}`
-Updates the capture status of an existing Pokémon.
-
-**Request Body:**
-```json
-{
-  "pokedexId": 1,
-  "captured": true
-}
-```
-
-**Response:**
-The full Pokémon object with the updated `captured` status.
-
-## 📈 Future Phases
-
-This is **Phase 1** of the Pokédex project. Future phases will include:
-
-- **Phase 2**: Authentication and multiple users
-- **Phase 3**: Web user interface
-- **Phase 4**: Integration with external APIs (PokéAPI)
-- **Phase 5**: Advanced features (evolutions, moves, etc.)
-
-## 🤝 Contributing
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 👤 Author
-
-**Alberto Sánchez** - https://github.com/albsanchez05
+- Alberto Sanchez: https://github.com/albsanchez05

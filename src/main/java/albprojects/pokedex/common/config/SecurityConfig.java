@@ -12,14 +12,36 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import albprojects.pokedex.auth.service.CustomUserDetailsService;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration // tells Spring that this class contains configuration settings
 @EnableWebSecurity // enables Spring Security's web security support and provides Spring MVC integration
 public class SecurityConfig
 {
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig( JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService customUserDetailsService )
+    {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
     public static final String URL_API_POKEMONS = "/api/pokemons/**";
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String USER_ROLE = "USER";
+
+    // Configures the authentication provider to use our custom user details service and password encoder.
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider()
+    {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService( customUserDetailsService );
+        authProvider.setPasswordEncoder( passwordEncoder() );
+        return authProvider;
+    }
 
     // Password hashing strategy used for storing user passwords securely.
     @Bean
@@ -59,8 +81,10 @@ public class SecurityConfig
                 .requestMatchers( HttpMethod.PUT, URL_API_POKEMONS ).hasRole( ADMIN_ROLE )
                 .requestMatchers( HttpMethod.DELETE, URL_API_POKEMONS ).hasRole( ADMIN_ROLE )
                 // Any other endpoint must be authenticated.
-                .anyRequest().authenticated()
-            );
+                .anyRequest().authenticated() )
+            // Register the custom authentication provider and JWT filter in the security filter chain.
+            .authenticationProvider( authenticationProvider() )
+            .addFilterBefore( jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class );
 
         return http.build();
     }
