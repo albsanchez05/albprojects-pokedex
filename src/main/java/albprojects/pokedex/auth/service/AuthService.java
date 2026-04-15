@@ -4,7 +4,9 @@ import albprojects.pokedex.auth.model.Role;
 import albprojects.pokedex.auth.model.User;
 import albprojects.pokedex.auth.repository.UserRepository;
 import albprojects.pokedex.common.config.JwtService;
+import albprojects.pokedex.common.exceptions.InvalidCredentialsException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,10 +67,18 @@ public class AuthService
     // Returns a JWT token if credentials are valid.
     public String login( String username, String rawPassword )
     {
-        // AuthenticationManager will throw an exception if credentials are wrong.
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken( username, rawPassword )
-        );
+        try
+        {
+            // AuthenticationManager will throw BadCredentialsException if credentials are wrong.
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken( username, rawPassword )
+            );
+        }
+        catch ( BadCredentialsException e )
+        {
+            // Translate Spring's internal exception into our own domain exception for consistent error responses.
+            throw new InvalidCredentialsException( "Invalid username or password" );
+        }
 
         // Credentials passed: load user and issue a new token.
         UserDetails userDetails = userDetailsService.loadUserByUsername( username );

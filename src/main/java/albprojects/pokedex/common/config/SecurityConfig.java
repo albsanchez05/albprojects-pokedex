@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import albprojects.pokedex.auth.service.CustomUserDetailsService;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration // tells Spring that this class contains configuration settings
 @EnableWebSecurity // enables Spring Security's web security support and provides Spring MVC integration
@@ -69,6 +70,14 @@ public class SecurityConfig
             .httpBasic( AbstractHttpConfigurer::disable )
             // Enforce stateless session management.
             .sessionManagement( session -> session.sessionCreationPolicy( SessionCreationPolicy.STATELESS ) )
+            .exceptionHandling( exceptions -> exceptions
+                // 401 when user is not authenticated ( no token / invalid auth context ).
+                .authenticationEntryPoint( ( request, response, authException ) ->
+                    response.sendError( HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized" ) )
+                // 403 when user is authenticated but does not have enough permissions.
+                .accessDeniedHandler( ( request, response, accessDeniedException ) ->
+                    response.sendError( HttpServletResponse.SC_FORBIDDEN, "Forbidden" ) )
+            )
             .authorizeHttpRequests( auth -> auth
                 // Public authentication endpoints.
                 .requestMatchers( "/api/auth/**" ).permitAll()

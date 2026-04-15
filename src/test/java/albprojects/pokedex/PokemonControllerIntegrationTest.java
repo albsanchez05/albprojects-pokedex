@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -38,13 +40,19 @@ class PokemonControllerIntegrationTest
     @BeforeEach
     void setUp( )
     {
-        mockMvc = MockMvcBuilders.webAppContextSetup( webApplicationContext ).build();
+        // Apply the full Spring Security filter chain so auth is enforced.
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup( webApplicationContext )
+            .apply( springSecurity() )
+            .build();
+
         objectMapper = new ObjectMapper();
         pokemonRepository.deleteAll(); // Clean the database before every test
     }
 
     @Test
     @DisplayName( "POST /pokemons should register a new pokemon successfully" )
+    @WithMockUser( roles = "ADMIN" ) // Simulates an authenticated ADMIN user without a real JWT
     void testRegisterPokemonSuccess( ) throws Exception
     {
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
@@ -73,6 +81,7 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "POST /pokemons should return bad request when ID already exists" )
+    @WithMockUser( roles = "ADMIN" )
     void testRegisterPokemonIdAlreadyExists( ) throws Exception
     {
         // First register a Pokemon
@@ -108,6 +117,7 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "GET /pokemons should return a page of pokemons" )
+    @WithMockUser( roles = "ADMIN" )
     void testGetAllPokemons( ) throws Exception
     {
         // Register multiple Pokemons
@@ -163,9 +173,12 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "GET /pokemons/{pokedexId} should return pokemon when exists" )
+    @WithMockUser( roles = "USER" ) // Read-only access, USER role is sufficient
     void testGetPokemonByIdSuccess( ) throws Exception
     {
-        // Registrar un Pokemon
+        // Seed a Pokemon directly via repository to avoid needing ADMIN role in this test.
+        pokemonRepository.deleteAll();
+
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
                 1,
                 "Bulbasaur",
@@ -181,12 +194,14 @@ class PokemonControllerIntegrationTest
                 false
         );
 
+        // Register using a temporary ADMIN mock to set up the data.
         mockMvc.perform( post( "/api/pokemons" )
+                        .with( org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user( "admin" ).roles( "ADMIN" ) )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
                 .andExpect( status().isOk() );
 
-        // Obtener por ID
+        // Retrieve with USER role.
         mockMvc.perform( get( "/api/pokemons/1" ) )
                 .andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.pokemonId" ).value( 1 ) )
@@ -197,6 +212,7 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "GET /pokemons/{pokedexId} should return not found when pokemon does not exist" )
+    @WithMockUser( roles = "USER" )
     void testGetPokemonByIdNotFound( ) throws Exception
     {
         mockMvc.perform( get( "/api/pokemons/2" ) )
@@ -208,9 +224,9 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "POST /pokemons/{id} should update captured status successfully" )
+    @WithMockUser( roles = "ADMIN" )
     void testCapturePokemonSuccess( ) throws Exception
     {
-        // Registrar un Pokemon
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
                 1,
                 "Bulbasaur",
@@ -231,7 +247,6 @@ class PokemonControllerIntegrationTest
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
                 .andExpect( status().isOk() );
 
-        // Capturar el Pokemon
         PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 1, true );
 
         mockMvc.perform( post( "/api/pokemons/1" )
@@ -245,6 +260,7 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "POST /pokemons/{id} should return not found when pokemon does not exist" )
+    @WithMockUser( roles = "ADMIN" )
     void testCapturePokemonNotFound( ) throws Exception
     {
         PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 999, true );
@@ -260,9 +276,9 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "DELETE /pokemons/{pokedexId} should unregister pokemon successfully and return 204" )
+    @WithMockUser( roles = "ADMIN" )
     void testUnregisterPokemonSuccess( ) throws Exception
     {
-        // Registrar un Pokemon
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
                 1,
                 "Bulbasaur",
@@ -283,11 +299,10 @@ class PokemonControllerIntegrationTest
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
                 .andExpect( status().isOk() );
 
-        // Liberar el Pokemon
         mockMvc.perform( delete( "/api/pokemons/1" ) )
                 .andExpect( status().isNoContent() );
 
-        // Verificar que ya no existe
+        // Verify that the Pokemon no longer exists.
         assertFalse( pokemonRepository.existsByPokedexId( 1 ) );
     }
 }

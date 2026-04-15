@@ -2,6 +2,7 @@ package albprojects.pokedex.common.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -75,6 +76,34 @@ public class GlobalExceptionHandler
                 "path", request.getDescription( false ).replace( "uri=", "" )
         );
         return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( errorResponse );
+    }
+
+    // 401 - returned when login credentials are wrong.
+    @ExceptionHandler( InvalidCredentialsException.class )
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials( InvalidCredentialsException e, WebRequest request )
+    {
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", Instant.now(),
+                "status", 401,
+                "error", "Unauthorized",
+                "message", e.getMessage(),
+                "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( errorResponse );
+    }
+
+    // 401 - returned when a username referenced during authentication does not exist.
+    @ExceptionHandler( UsernameNotFoundException.class )
+    public ResponseEntity<Map<String, Object>> handleUsernameNotFound( UsernameNotFoundException e, WebRequest request )
+    {
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", Instant.now(),
+                "status", 401,
+                "error", "Unauthorized",
+                "message", "Invalid credentials",
+                "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( errorResponse );
     }
 
 }

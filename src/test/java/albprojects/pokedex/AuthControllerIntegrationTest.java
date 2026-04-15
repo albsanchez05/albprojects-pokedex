@@ -90,7 +90,7 @@ class AuthControllerIntegrationTest
     void testProtectedEndpointWithAndWithoutToken( ) throws Exception
     {
         mockMvc.perform( get( "/api/pokemons" ) )
-            .andExpect( status().isForbidden() );
+            .andExpect( status().isUnauthorized() );
 
         String unique = UUID.randomUUID().toString().substring( 0, 8 );
         String username = "user-" + unique;
@@ -120,5 +120,103 @@ class AuthControllerIntegrationTest
         mockMvc.perform( get( "/api/pokemons" )
                 .header( "Authorization", "Bearer " + token ) )
             .andExpect( status().isOk() );
+    }
+
+    @Test
+    @DisplayName( "GET /api/pokemons with invalid token should return 401" )
+    void testProtectedEndpointWithInvalidToken( ) throws Exception
+    {
+        mockMvc.perform( get( "/api/pokemons" )
+                .header( "Authorization", "Bearer invalid.token.value" ) )
+            .andExpect( status().isUnauthorized() );
+    }
+
+    @Test
+    @DisplayName( "POST /api/auth/login with wrong password should return 401" )
+    void testLoginWithWrongPassword( ) throws Exception
+    {
+        // First register a user so the username exists.
+        String unique = UUID.randomUUID().toString().substring( 0, 8 );
+        String username = "user-" + unique;
+
+        String registerPayload = """
+            {
+              "username": "%s",
+              "email": "user-%s@pokedex.local",
+              "password": "Pikachu@123"
+            }
+            """.formatted( username, unique );
+
+        mockMvc.perform( post( "/api/auth/register" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( registerPayload ) )
+            .andExpect( status().isOk() );
+
+        // Attempt login with the wrong password.
+        String loginPayload = """
+            {
+              "username": "%s",
+              "password": "WrongPass@999"
+            }
+            """.formatted( username );
+
+        mockMvc.perform( post( "/api/auth/login" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( loginPayload ) )
+            .andExpect( status().isUnauthorized() );
+    }
+
+    @Test
+    @DisplayName( "POST /api/pokemons with USER role token should return 403" )
+    void testUserRoleCannotWritePokemons( ) throws Exception
+    {
+        // Register a regular USER ( register always assigns the USER role ).
+        String unique = UUID.randomUUID().toString().substring( 0, 8 );
+        String username = "user-" + unique;
+
+        String registerPayload = """
+            {
+              "username": "%s",
+              "email": "user-%s@pokedex.local",
+              "password": "Pikachu@123"
+            }
+            """.formatted( username, unique );
+
+        String registerResponse = mockMvc.perform( post( "/api/auth/register" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( registerPayload ) )
+            .andExpect( status().isOk() )
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        // Extract the token issued to the regular USER.
+        JsonNode jsonNode = objectMapper.readTree( registerResponse );
+        String userToken = jsonNode.get( "token" ).asText();
+        assertNotNull( userToken );
+
+        // A USER trying to POST ( write ) to /api/pokemons must be rejected with 403.
+        String pokemonPayload = """
+            {
+              "pokemonId": 1,
+              "name": "Bulbasaur",
+              "type1": "Grass",
+              "type2": "Poison",
+              "hp": 45,
+              "attack": 49,
+              "defense": 49,
+              "spAttack": 65,
+              "spDefense": 65,
+              "speed": 45,
+              "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+              "captured": false
+            }
+            """;
+
+        mockMvc.perform( post( "/api/pokemons" )
+                .header( "Authorization", "Bearer " + userToken )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( pokemonPayload ) )
+            .andExpect( status().isForbidden() );
     }
 }
