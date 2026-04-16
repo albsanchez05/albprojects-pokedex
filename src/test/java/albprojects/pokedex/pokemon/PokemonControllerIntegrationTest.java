@@ -224,7 +224,7 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "POST /pokemons/{id} should update captured status successfully" )
-    @WithMockUser( roles = "ADMIN" )
+    @WithMockUser( roles = "USER" )
     void testCapturePokemonSuccess( ) throws Exception
     {
         PokemonCompleteDTO pokemonDTO = new PokemonCompleteDTO(
@@ -243,6 +243,7 @@ class PokemonControllerIntegrationTest
         );
 
         mockMvc.perform( post( "/api/pokemons" )
+                        .with( org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user( "admin" ).roles( "ADMIN" ) )
                         .contentType( MediaType.APPLICATION_JSON )
                         .content( objectMapper.writeValueAsString( pokemonDTO ) ) )
                 .andExpect( status().isOk() );
@@ -260,7 +261,7 @@ class PokemonControllerIntegrationTest
 
     @Test
     @DisplayName( "POST /pokemons/{id} should return not found when pokemon does not exist" )
-    @WithMockUser( roles = "ADMIN" )
+    @WithMockUser( roles = "USER" )
     void testCapturePokemonNotFound( ) throws Exception
     {
         PokemonCaptureDTO captureDTO = new PokemonCaptureDTO( 999, true );

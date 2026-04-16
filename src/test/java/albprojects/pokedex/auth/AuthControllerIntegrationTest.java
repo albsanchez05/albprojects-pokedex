@@ -219,4 +219,46 @@ class AuthControllerIntegrationTest
                 .content( pokemonPayload ) )
             .andExpect( status().isForbidden() );
     }
+
+    @Test
+    @DisplayName( "POST /api/pokemons/{id} with USER role token should be authorized" )
+    void testUserRoleCanCapturePokemon( ) throws Exception
+    {
+        String unique = UUID.randomUUID().toString().substring( 0, 8 );
+        String username = "user-" + unique;
+
+        String registerPayload = """
+            {
+              "username": "%s",
+              "email": "user-%s@pokedex.local",
+              "password": "Pikachu@123"
+            }
+            """.formatted( username, unique );
+
+        String registerResponse = mockMvc.perform( post( "/api/auth/register" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( registerPayload ) )
+            .andExpect( status().isOk() )
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        JsonNode jsonNode = objectMapper.readTree( registerResponse );
+        String userToken = jsonNode.get( "token" ).asText();
+        assertNotNull( userToken );
+
+        String capturePayload = """
+            {
+              "pokedexId": 999,
+              "captured": true
+            }
+            """;
+
+        // 404 confirms endpoint authorization passed and business validation handled the missing Pokemon.
+        mockMvc.perform( post( "/api/pokemons/999" )
+                .header( "Authorization", "Bearer " + userToken )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( capturePayload ) )
+            .andExpect( status().isNotFound() );
+    }
 }
