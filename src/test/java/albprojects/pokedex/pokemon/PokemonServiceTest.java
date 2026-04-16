@@ -1,4 +1,4 @@
-package albprojects.pokedex;
+package albprojects.pokedex.pokemon;
 
 import albprojects.pokedex.common.exceptions.PageNotFoundException;
 import albprojects.pokedex.common.exceptions.PokemonIdAlreadyExistsException;

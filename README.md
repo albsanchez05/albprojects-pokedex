@@ -113,6 +113,42 @@ Create a database and role matching your values in `src/main/resources/applicati
 
 The application is available at `http://localhost:8080`.
 
+### 3.1 Run with Local H2 Console (optional)
+
+Use the `h2` profile to run the app with an in-memory database and browser console:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+```
+
+Then open:
+
+- `http://localhost:8082/h2-console`
+
+H2 console connection values:
+
+- JDBC URL: `jdbc:h2:mem:pokedex_local`
+- User Name: `sa`
+- Password: _(leave empty)_
+
+> Note: H2 is only for tests/local verification. The default application database remains PostgreSQL.
+
+### 3.2 Troubleshooting: Port 808x Already In Use (Windows)
+
+If startup fails with `Port 808x was already in use`, identify and stop the process using that port:
+
+```powershell
+Get-NetTCPConnection -LocalPort 808x | Select-Object LocalAddress, LocalPort, State, OwningProcess
+Get-Process -Id <PID>
+Stop-Process -Id <PID> -Force
+```
+
+Or in one line:
+
+```powershell
+Stop-Process -Id ( Get-NetTCPConnection -LocalPort 808x ).OwningProcess -Force
+```
+
 ### 4. Run Tests
 
 ```bash

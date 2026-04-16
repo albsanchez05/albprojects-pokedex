@@ -1,6 +1,5 @@
-package albprojects.pokedex;
+package albprojects.pokedex.auth;
 
-import albprojects.pokedex.auth.model.Role;
 import albprojects.pokedex.auth.model.User;
 import albprojects.pokedex.auth.repository.UserRepository;
 import albprojects.pokedex.auth.service.AuthService;
@@ -21,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

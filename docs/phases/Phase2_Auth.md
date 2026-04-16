@@ -11,14 +11,15 @@ Implement stateless JWT authentication with users persisted in the database, a l
 ### Role Model and Endpoint Access
 
 - `ADMIN`: full access to authentication and Pokemon endpoints, including write operations.
-- `USER`: access to authentication endpoints and read-only Pokemon endpoints.
+- `USER`: access to authentication endpoints, read Pokemon endpoints, and capture endpoint.
 
 Access rules to implement:
 
 - `POST /api/auth/register`: public
 - `POST /api/auth/login`: public
 - `GET /api/pokemons/**`: authenticated ( `USER` or `ADMIN` )
-- `POST /api/pokemons/**`: `ADMIN` only
+- `POST /api/pokemons`: `ADMIN` only
+- `POST /api/pokemons/{id}`: authenticated ( `USER` or `ADMIN` )
 - `PUT /api/pokemons/**`: `ADMIN` only
 - `DELETE /api/pokemons/**`: `ADMIN` only
 

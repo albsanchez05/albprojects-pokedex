@@ -31,8 +31,11 @@ public class SecurityConfig
     }
 
     public static final String URL_API_POKEMONS = "/api/pokemons/**";
+    public static final String URL_API_POKEMONS_ROOT = "/api/pokemons";
+    public static final String URL_API_POKEMONS_ITEM = "/api/pokemons/*";
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String USER_ROLE = "USER";
+    public static final String URL_H2_CONSOLE = "/h2-console/**";
 
     // Configures the authentication provider to use our custom user details service and password encoder.
     @Bean
@@ -65,6 +68,8 @@ public class SecurityConfig
         http
             // Disable CSRF because this is a stateless REST API.
             .csrf( AbstractHttpConfigurer::disable )
+            // H2 console is rendered in a frame.
+            .headers( headers -> headers.frameOptions( frame -> frame.sameOrigin() ) )
             // Disable browser-based login mechanisms.
             .formLogin( AbstractHttpConfigurer::disable )
             .httpBasic( AbstractHttpConfigurer::disable )
@@ -83,10 +88,14 @@ public class SecurityConfig
                 .requestMatchers( "/api/auth/**" ).permitAll()
                 // Keep Swagger/OpenAPI docs publicly accessible for now.
                 .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**" ).permitAll()
+                // Local H2 console endpoint.
+                .requestMatchers( URL_H2_CONSOLE ).permitAll()
                 // Read operations: USER or ADMIN.
                 .requestMatchers( HttpMethod.GET, URL_API_POKEMONS ).hasAnyRole( USER_ROLE, ADMIN_ROLE )
-                // Write operations: ADMIN only.
-                .requestMatchers( HttpMethod.POST, URL_API_POKEMONS ).hasRole( ADMIN_ROLE )
+                // Capture operation: USER or ADMIN.
+                .requestMatchers( HttpMethod.POST, URL_API_POKEMONS_ITEM ).hasAnyRole( USER_ROLE, ADMIN_ROLE )
+                // Register/write operations: ADMIN only.
+                .requestMatchers( HttpMethod.POST, URL_API_POKEMONS_ROOT ).hasRole( ADMIN_ROLE )
                 .requestMatchers( HttpMethod.PUT, URL_API_POKEMONS ).hasRole( ADMIN_ROLE )
                 .requestMatchers( HttpMethod.DELETE, URL_API_POKEMONS ).hasRole( ADMIN_ROLE )
                 // Any other endpoint must be authenticated.
