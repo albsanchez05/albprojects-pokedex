@@ -6,13 +6,24 @@ services:
     container_name: postgres-dev
     restart: always
     environment:
-      POSTGRES_USER: admin           # Tu usuario de base de datos
-      POSTGRES_PASSWORD: password123 # Tu contraseña
-      POSTGRES_DB: mi_base_datos     # El nombre de la base de datos que creará por defecto
+      POSTGRES_USER: professor-oak
+      POSTGRES_PASSWORD: gottacatchthemall
+      POSTGRES_DB: pokedex_database
     ports:
-      - "5444:5432"                  # Mapeo de puertos (Host:Contenedor)
+      - "5444:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Volumen para persistencia de datos
+      - postgres_data:/var/lib/postgresql/data
+
+  pokedex-api:
+    build: .
+    container_name: pokedex-api-dev
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://mi-postgres:5432/pokedex_database
+    depends_on:
+      - mi-postgres
 
 volumes:
   postgres_data:

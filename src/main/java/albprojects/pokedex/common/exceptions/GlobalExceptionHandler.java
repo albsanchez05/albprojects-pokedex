@@ -2,12 +2,17 @@ package albprojects.pokedex.common.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
@@ -78,7 +83,7 @@ public class GlobalExceptionHandler
         return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( errorResponse );
     }
 
-    // 401 - returned when login credentials are wrong.
+    // Handles exceptions for invalid login credentials.
     @ExceptionHandler( InvalidCredentialsException.class )
     public ResponseEntity<Map<String, Object>> handleInvalidCredentials( InvalidCredentialsException e, WebRequest request )
     {
@@ -92,7 +97,7 @@ public class GlobalExceptionHandler
         return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( errorResponse );
     }
 
-    // 401 - returned when a username referenced during authentication does not exist.
+    // Handles exceptions when a user is not found during authentication.
     @ExceptionHandler( UsernameNotFoundException.class )
     public ResponseEntity<Map<String, Object>> handleUsernameNotFound( UsernameNotFoundException e, WebRequest request )
     {
@@ -100,10 +105,56 @@ public class GlobalExceptionHandler
                 "timestamp", Instant.now(),
                 "status", 401,
                 "error", "Unauthorized",
-                "message", "Invalid credentials",
+                "message", "Invalid credentials", // Masking the original "User not found" for security
                 "path", request.getDescription( false ).replace( "uri=", "" )
         );
         return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( errorResponse );
     }
 
+    // Handles exceptions from @Valid validation on request bodies.
+    @ExceptionHandler( MethodArgumentNotValidException.class )
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions( MethodArgumentNotValidException ex, WebRequest request ) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach( ( error ) -> {
+            String fieldName = ( (FieldError) error ).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put( fieldName, errorMessage );
+        } );
+
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", Instant.now(),
+                "status", 400,
+                "error", "Bad Request",
+                "message", "Validation failed",
+                "details", errors,
+                "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( errorResponse );
+    }
+
+    // Handles exceptions when an authenticated user lacks required permissions.
+    @ExceptionHandler( AccessDeniedException.class )
+    public ResponseEntity<Map<String, Object>> handleAccessDenied( AccessDeniedException e, WebRequest request ) {
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", Instant.now(),
+                "status", 403,
+                "error", "Forbidden",
+                "message", "You do not have permission to access this resource",
+                "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( HttpStatus.FORBIDDEN ).body( errorResponse );
+    }
+
+    // A general handler for authentication issues triggered by security filters.
+    @ExceptionHandler( AuthenticationException.class )
+    public ResponseEntity<Map<String, Object>> handleAuthenticationException( AuthenticationException e, WebRequest request ) {
+        Map<String, Object> errorResponse = Map.of(
+                "timestamp", Instant.now(),
+                "status", 401,
+                "error", "Unauthorized",
+                "message", "Authentication failed: " + e.getMessage(),
+                "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( errorResponse );
+    }
 }

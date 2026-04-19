@@ -12,7 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-// Service responsible for user registration and login flows.
+/**
+ * Service responsible for user registration and login flows.
+ */
 @Service
 public class AuthService
 {
@@ -21,7 +23,7 @@ public class AuthService
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
-    // Constructor to inject all required dependencies.
+
     public AuthService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
@@ -37,6 +39,14 @@ public class AuthService
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Registers a new user, validates input, and returns a JWT upon successful creation.
+     * @param username The username for the new user.
+     * @param email The email for the new user.
+     * @param rawPassword The plain-text password for the new user.
+     * @return A JWT for the newly created user.
+     * @throws IllegalArgumentException if the username or email is already taken.
+     */
     public String register( String username, String email, String rawPassword )
     {
         // Validate that username and email are not already taken.
@@ -63,8 +73,13 @@ public class AuthService
         return jwtService.generateToken( userDetails );
     }
 
-    // Authenticate an existing user with username and password.
-    // Returns a JWT token if credentials are valid.
+    /**
+     * Authenticates an existing user with a username and password.
+     * @param username The user's username.
+     * @param rawPassword The user's plain-text password.
+     * @return A JWT token if credentials are valid.
+     * @throws InvalidCredentialsException if authentication fails.
+     */
     public String login( String username, String rawPassword )
     {
         try
@@ -80,8 +95,8 @@ public class AuthService
             throw new InvalidCredentialsException( "Invalid username or password" );
         }
 
-        // Credentials passed: load user and issue a new token.
-        UserDetails userDetails = userDetailsService.loadUserByUsername( username );
+        // If credentials passed, load user details and issue a new token.
+        final UserDetails userDetails = userDetailsService.loadUserByUsername( username );
         return jwtService.generateToken( userDetails );
     }
 }

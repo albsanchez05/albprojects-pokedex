@@ -1,6 +1,7 @@
 package albprojects.pokedex.common.config;
 
 import albprojects.pokedex.auth.service.CustomUserDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,13 +12,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import io.jsonwebtoken.JwtException;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-// Filter that intercepts every request, extracts and validates the JWT, and sets the authentication in the security context.
-// OncePerRequestFilter guarantees this filter runs exactly once per request.
+/**
+ * Filter that intercepts every request to extract and validate the JWT from the Authorization header.
+ * If the token is valid, it sets the user authentication in the Spring Security context.
+ * This filter runs exactly once per request.
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter
 {
@@ -37,58 +39,48 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
         FilterChain filterChain
     ) throws ServletException, IOException
     {
+        final String authHeader = request.getHeader( "Authorization" );
 
-
-        // Read the Authorization header from the incoming request.
-        String authHeader = request.getHeader( "Authorization" );
-
-        // If the header is missing or does not start with "Bearer ", skip this filter entirely.
+        // If the header is missing or does not start with "Bearer ", pass the request to the next filter.
         if ( authHeader == null || !authHeader.startsWith( "Bearer " ) )
         {
             filterChain.doFilter( request, response );
             return;
         }
 
-        // Strip the "Bearer " prefix to get the raw JWT string.
-        // The substring(7) call removes the first 7 characters ("Bearer ") from the header value, leaving just the JWT token.
-        String jwt = authHeader.substring( 7 );
+        // Extract the JWT by removing the "Bearer " prefix.
+        final String jwt = authHeader.substring( 7 );
 
         try
         {
-            // Extract the username from the token payload.
-            String username = jwtService.extractUsername( jwt );
+            final String username = jwtService.extractUsername( jwt );
 
-            // Only proceed if username was extracted and no authentication is set for this request yet.
+            // If username is extracted and no authentication is currently set in the context, process the token.
             if ( username != null && SecurityContextHolder.getContext().getAuthentication() == null )
             {
-                // Load the full user record from the database.
-                UserDetails userDetails = userDetailsService.loadUserByUsername( username );
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername( username );
 
-                // Validate the token against the loaded user ( signature, expiration, ownership ).
+                // If the token is valid, create an authentication token and set it in the security context.
                 if ( jwtService.isTokenValid( jwt, userDetails ) )
                 {
-                    // Create a Spring Security authentication token with the user's authorities.
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
-                        null,
+                        null, // Credentials are not needed as the user is already authenticated by the token.
                         userDetails.getAuthorities()
                     );
-                    // Attach request-level details ( e.g., IP address, session ) to the auth token.
                     authToken.setDetails( new WebAuthenticationDetailsSource().buildDetails( request ) );
-                    // Register the authenticated user in the security context for this request.
                     SecurityContextHolder.getContext().setAuthentication( authToken );
                 }
             }
         }
-        // If any exception occurs during token extraction or validation, clear the security context and return a 401 Unauthorized response.
-        catch ( JwtException | IllegalArgumentException e )
+        catch ( JwtException e )
         {
-            SecurityContextHolder.clearContext();
-            response.sendError( HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired JWT token" );
-            return;
+            // If token validation fails, we simply do nothing. The request will proceed without authentication,
+            // and access will be denied later by the authorization rules if the endpoint is protected.
+            // This prevents the filter from prematurely ending the request with a 401.
         }
 
-        // Pass the request along to the next filter in the chain.
+        // Continue the filter chain.
         filterChain.doFilter( request, response );
     }
 }
