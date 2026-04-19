@@ -19,8 +19,8 @@ RUN mvn package -DskipTests
 
 
 # --- STAGE 2: Run ---
-# Use a lightweight Java 17 image to run the application
-FROM eclipse-temurin:17-jre-alpine
+# Use a standard Java 17 image to run the application (multi-platform compatible)
+FROM eclipse-temurin:17-jre
 
 # Set the working directory
 WORKDIR /app
