@@ -1,0 +1,35 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "Admin@123"
+  }
+}
+
+script:post-response {
+  const token = res.getBody().token;
+  if(token) {
+    bru.setEnvVar("jwt_token", token);
+  }
+}
+
+docs {
+  ## Login User
+
+  Authenticates an existing user and returns a JWT token.
+
+  This request includes a script that automatically saves the received `jwt_token` to the active environment. All other requests in this collection will use this token for authentication.
+
+  **Run this request first!**
+}

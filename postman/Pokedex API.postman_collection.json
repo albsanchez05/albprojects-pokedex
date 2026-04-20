@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "a8a1b3a3-a3b1-4b1a-a3b1-a3b1a3b1a3b1",
+		"name": "Pokedex API",
+		"description": "A collection for testing the Pokedex API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Requests for authentication and user management.",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"ash-ketchum\",\n    \"email\": \"ash@pokedex.com\",\n    \"password\": \"Password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Creates a new user account and returns a JWT token. The token is automatically saved as a collection variable."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"Admin@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates an existing user and returns a JWT token. The token is automatically saved as a collection variable. Run this first!"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pokemon",
+			"description": "Endpoints for managing Pokemon.",
+			"item": [
+				{
+					"name": "Get All Pokemons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pokemons",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons"
+							]
+						},
+						"description": "Retrieves a paginated list of all Pokemon. This request uses the token from the collection variables."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pokemon By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pokemons/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons",
+								"1"
+							]
+						},
+						"description": "Retrieves the full details for a single Pokemon by its Pokedex ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Register Pokemon (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pokemonId\": 152,\n    \"name\": \"Chikorita\",\n    \"type1\": \"GRASS\",\n    \"type2\": null,\n    \"hp\": 45,\n    \"attack\": 49,\n    \"defense\": 65,\n    \"spAttack\": 49,\n    \"spDefense\": 65,\n    \"speed\": 45,\n    \"image\": \"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/pokemons",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons"
+							]
+						},
+						"description": "Registers a new Pokemon in the Pokedex. Requires ADMIN role."
+					},
+					"response": []
+				},
+				{
+					"name": "Capture Pokemon",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pokedexId\": 1,\n    \"captured\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/pokemons/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons",
+								"1"
+							]
+						},
+						"description": "Updates the capture status of a specific Pokemon. Can be performed by both USER and ADMIN roles."
+					},
+					"response": []
+				},
+				{
+					"name": "Release Pokemon (Admin Only)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pokemons/152",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons",
+								"152"
+							]
+						},
+						"description": "Deletes a Pokemon from the Pokedex by its ID. Requires ADMIN role."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8082",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

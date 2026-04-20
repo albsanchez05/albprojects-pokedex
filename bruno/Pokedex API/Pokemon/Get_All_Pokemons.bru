@@ -1,0 +1,23 @@
+meta {
+  name: Get All Pokemons
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/pokemons
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+docs {
+  ## Get All Pokemons
+
+  Retrieves a paginated list of all Pokemon.
+
+  This request automatically uses the `jwt_token` saved from the **Login** or **Register** request. Make sure you have run one of those first.
+}

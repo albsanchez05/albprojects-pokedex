@@ -1,0 +1,23 @@
+meta {
+  name: Release Pokemon
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{base_url}}/api/pokemons/152
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+docs {
+  ## Unregister Pokemon (Admin Only)
+
+  Deletes a Pokemon from the Pokedex by its ID.
+
+  **Note:** This endpoint requires an **ADMIN** role. You must log in with an admin user for this request to succeed.
+}

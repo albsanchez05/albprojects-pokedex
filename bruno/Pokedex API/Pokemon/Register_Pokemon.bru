@@ -1,0 +1,39 @@
+meta {
+  name: Register Pokemon
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/pokemons
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+body:json {
+  {
+    "pokemonId": 152,
+    "name": "Chikorita",
+    "type1": "GRASS",
+    "type2": null,
+    "hp": 45,
+    "attack": 49,
+    "defense": 65,
+    "spAttack": 49,
+    "spDefense": 65,
+    "speed": 45,
+    "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/152.png"
+  }
+}
+
+docs {
+  ## Register Pokemon (Admin Only)
+
+  Registers a new Pokemon in the Pokedex.
+
+  **Note:** This endpoint requires an **ADMIN** role. You must log in with an admin user (e.g., `admin` / `Admin@123`) for this request to succeed.
+}

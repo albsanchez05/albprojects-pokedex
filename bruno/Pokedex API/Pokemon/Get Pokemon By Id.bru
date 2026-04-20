@@ -1,0 +1,23 @@
+meta {
+  name: Get Pokemon By Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/pokemons/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+docs {
+  ## Get Pokemon By Id
+
+  Retrieves the full details for a single Pokemon by its Pokedex ID.
+
+  This request automatically uses the `jwt_token` saved from the **Login** or **Register** request.
+}

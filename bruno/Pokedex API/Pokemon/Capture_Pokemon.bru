@@ -1,0 +1,30 @@
+meta {
+  name: Capture Pokemon
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/api/pokemons/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+body:json {
+  {
+    "pokedexId": 1,
+    "captured": true
+  }
+}
+
+docs {
+  ## Capture Pokemon
+
+  Updates the capture status of a specific Pokemon.
+
+  This request can be performed by both `USER` and `ADMIN` roles.
+}

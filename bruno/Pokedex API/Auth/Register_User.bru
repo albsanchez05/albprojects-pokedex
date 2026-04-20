@@ -1,0 +1,36 @@
+meta {
+  name: Register
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "ash-ketchum",
+    "email": "ash@pokedex.com",
+    "password": "Password123"
+  }
+}
+
+script:post-response {
+  const token = res.getBody().token;
+  if(token) {
+    bru.setEnvVar("jwt_token", token);
+  }
+}
+
+docs {
+  ## Register New User
+
+  Creates a new user account and returns a JWT token.
+
+  This request includes a script that automatically saves the received `jwt_token` to the active environment. All other requests in this collection will use this token for authentication.
+
+  **Run this request if you need a new user.**
+}

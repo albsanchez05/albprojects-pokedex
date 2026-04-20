@@ -94,6 +94,35 @@ Use this option if you prefer to run the application directly on your host machi
 4.  **Access the Application**
     *   **API & Swagger UI**: `http://localhost:8082/swagger-ui.html`
 
+## Testing the API
+
+To make testing easy, this project includes pre-configured collections for popular API clients. These collections automatically handle authentication tokens.
+
+### For Postman Users
+
+1.  **Install Postman**: Download it from the [Postman website](https://www.postman.com/downloads/).
+2.  **Import the Collection**:
+    *   Open Postman and click `File > Import...`.
+    *   Select the file `postman/Pokedex API.postman_collection.json` from this project.
+3.  **Run the `Login` Request**:
+    *   In the imported collection, expand the `Auth` folder and click on the `Login` request.
+    *   Click the `Send` button. This will authenticate you and automatically save the token.
+4.  **Test Other Endpoints**: Now you can run any other request (like `Get All Pokemons`) and it will be automatically authenticated.
+
+### For Bruno Users
+
+1.  **Install Bruno**: Download it from the [Bruno website](https://www.usebruno.com/downloads).
+2.  **Open the Collection**:
+    *   In Bruno, click `Open Collection`.
+    *   In the file dialog, navigate into the `bruno` directory and select the **`Pokedex API`** folder.
+3.  **Select the Environment**:
+    *   In the top-right corner of the Bruno window, click the dropdown menu that says `No Environment`.
+    *   Select **`Local_Environment`** from the list. This is crucial for the API URLs to work.
+4.  **Run the `Login` Request**:
+    *   Expand the `Auth` folder and click on the `Login_User` request.
+    *   Click the "play" button (▶️). This will authenticate you and automatically save the token.
+5.  **Test Other Endpoints**: Now you can run any other request and it will be automatically authenticated.
+
 ## Running Tests
 
 To run the suite of integration and unit tests, you can use the standard Maven command. This does not require Docker.
@@ -104,7 +133,7 @@ To run the suite of integration and unit tests, you can use the standard Maven c
 
 ## API Documentation
 
-The API documentation is generated automatically and is available through Swagger UI once the application is running.
+For a quick overview and manual testing, the API documentation is available through Swagger UI once the application is running.
 
 - **Swagger UI URL**: `http://localhost:8082/swagger-ui.html`
 
