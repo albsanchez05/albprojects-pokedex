@@ -6,6 +6,8 @@
 [![Maven](https://img.shields.io/badge/Maven-3.8.5-red)](https://maven.apache.org/)
 [![Swagger](https://img.shields.io/badge/Swagger-3-green)](https://swagger.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
+[![Angular](https://img.shields.io/badge/Angular-21-red)](https://angular.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38bdf8)](https://tailwindcss.com/)
 
 A complete REST API for managing a Pokedex, implemented with Spring Boot. The project is delivered incrementally by phases, with each phase extending the existing baseline.
 
@@ -28,7 +30,7 @@ The application follows a clean architecture with separation between feature mod
 
 ## How to Run This Project
 
-You can run this project in two ways: using Docker (recommended for a quick setup) or running it locally on your machine.
+You can run this project in two ways: using Docker (recommended for a quick setup) or running it locally on your machine. The Docker option starts all three services together: PostgreSQL, the Spring Boot API, and the Angular frontend.
 
 ### Option A: Running with Docker (Recommended)
 
@@ -52,6 +54,7 @@ This is the easiest way to get started, as it handles all dependencies for you.
     ```
 
 3.  **Access the Application**
+    *   **Frontend (Angular SPA)**: `http://localhost:4200`
     *   **API & Swagger UI**: `http://localhost:8082/swagger-ui.html`
     *   **Database (for inspection)**: Host `localhost`, Port `5444`, DB `pokedex_database`, User `professor-oak`, Pass `gottacatchthemall`.
 
@@ -84,7 +87,7 @@ Use this option if you prefer to run the application directly on your host machi
     spring.datasource.username=your_user
     spring.datasource.password=your_password
     ```
-    *Note: The project is currently configured to connect to the Docker database on port `5444`. You will need to adjust this for your local setup.*
+    *Note: The project defaults to port `5432` for local development. When running with Docker, switch the active `spring.datasource.url` in `application.properties` to the Docker port `5444`.*
 
 3.  **Run the Application with Maven**
     ```bash
@@ -93,6 +96,35 @@ Use this option if you prefer to run the application directly on your host machi
 
 4.  **Access the Application**
     *   **API & Swagger UI**: `http://localhost:8082/swagger-ui.html`
+
+### Option C: Running the Frontend Locally
+
+The Angular SPA lives in the `frontend/` directory and runs independently from the backend.
+
+**Prerequisites:**
+*   Node.js 20 or higher
+*   npm 10 or higher
+
+**Steps:**
+
+1.  **Navigate to the frontend directory**
+    ```bash
+    cd frontend
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Start the dev server**
+    ```bash
+    npm run start
+    ```
+
+4.  **Access the frontend**
+    *   **Angular SPA**: `http://localhost:4200`
+    *   The backend API must be running on `http://localhost:8082` for the frontend to function.
 
 ## Testing the API
 

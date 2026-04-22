@@ -25,5 +25,14 @@ services:
     depends_on:
       - mi-postgres
 
+  pokedex-frontend:
+    build: ./frontend
+    container_name: pokedex-frontend-dev
+    restart: always
+    ports:
+      - "4200:80"
+    depends_on:
+      - pokedex-api
+
 volumes:
   postgres_data:
