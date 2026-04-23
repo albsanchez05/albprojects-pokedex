@@ -1,6 +1,5 @@
 package albprojects.pokedex.pokemon.model;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 
