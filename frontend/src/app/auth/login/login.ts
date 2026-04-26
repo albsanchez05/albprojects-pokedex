@@ -40,7 +40,7 @@ export class Login {
     this.authService.login( payload ).subscribe( {
       next: () => {
         this.isSubmitting = false;
-        this.router.navigateByUrl( "/" );
+        this.router.navigateByUrl( "/pokedex" );
       },
       error: () => {
         this.isSubmitting = false;
