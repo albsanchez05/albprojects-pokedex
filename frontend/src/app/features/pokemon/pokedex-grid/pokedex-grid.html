@@ -1,0 +1,45 @@
+<app-navbar />
+
+<main class="min-h-screen bg-slate-100 p-6">
+  <section class="mx-auto max-w-6xl">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold text-slate-800">Pokedex</h1>
+      <p class="text-slate-600">Browse the registered Pokemon page by page.</p>
+    </header>
+
+    <p *ngIf="isLoading" class="text-slate-600">Loading Pokemons...</p>
+    <p *ngIf="errorMessage" class="text-red-600">{{ errorMessage }}</p>
+
+    <div
+      *ngIf="pokemonPage"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+    >
+      <app-pokemon-card
+        *ngFor="let pokemon of pokemonPage.content"
+        [pokemon]="pokemon"
+      />
+    </div>
+
+    <div *ngIf="pokemonPage" class="mt-8 flex items-center justify-between">
+      <button
+        (click)="goToPreviousPage()"
+        [disabled]="pokemonPage.first"
+        class="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-50"
+      >
+        Previous
+      </button>
+
+      <span class="text-sm text-slate-600">
+        Page {{ pokemonPage.number + 1 }} of {{ pokemonPage.totalPages }}
+      </span>
+
+      <button
+        (click)="goToNextPage()"
+        [disabled]="pokemonPage.last"
+        class="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  </section>
+</main>
