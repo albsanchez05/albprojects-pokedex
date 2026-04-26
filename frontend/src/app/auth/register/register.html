@@ -1,1 +1,61 @@
-<p>register works!</p>
+<main class="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+  <section class="w-full max-w-md bg-white rounded-xl shadow p-6">
+    <h1 class="text-2xl font-bold text-slate-800 mb-6">Create account</h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+        <input formControlName="username" class="w-full rounded border border-slate-300 px-3 py-2" />
+        <p *ngIf="form.get('username')?.touched && form.get('username')?.errors?.['required']" class="mt-1 text-sm text-red-600">
+          Username is required.
+        </p>
+        <p *ngIf="form.get('username')?.touched && form.get('username')?.errors?.['minlength']" class="mt-1 text-sm text-red-600">
+          Username must be at least 3 characters long.
+        </p>
+        <p *ngIf="form.get('username')?.touched && form.get('username')?.errors?.['conflict']" class="mt-1 text-sm text-red-600">
+          This username already exists.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+        <input type="email" formControlName="email" class="w-full rounded border border-slate-300 px-3 py-2" />
+        <p *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['required']" class="mt-1 text-sm text-red-600">
+          Email is required.
+        </p>
+        <p *ngIf="form.get('email')?.touched && (form.get('email')?.errors?.['email'] || form.get('email')?.errors?.['pattern'])" class="mt-1 text-sm text-red-600">
+          Please enter a valid email (example: trainer@pokedex.com).
+        </p>
+        <p *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['conflict']" class="mt-1 text-sm text-red-600">
+          This email is already registered.
+        </p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+        <input type="password" formControlName="password" class="w-full rounded border border-slate-300 px-3 py-2" />
+        <p *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['required']" class="mt-1 text-sm text-red-600">
+          Password is required.
+        </p>
+        <p *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['minlength']" class="mt-1 text-sm text-red-600">
+          Password must be at least 8 characters long.
+        </p>
+      </div>
+
+      <p *ngIf="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
+
+      <button
+        type="submit"
+        [disabled]="isSubmitting"
+        class="w-full rounded bg-blue-600 text-white py-2 font-semibold hover:bg-blue-700 disabled:opacity-50"
+      >
+        {{ isSubmitting ? "Creating..." : "Create account" }}
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-slate-600">
+      Already registered?
+      <a routerLink="/login" class="text-blue-600 hover:underline">Sign in</a>
+    </p>
+  </section>
+</main>
