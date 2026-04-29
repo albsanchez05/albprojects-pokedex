@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { PokemonPageModel } from "../models/pokemon-page.model";
+import { PokemonDetailModel } from "../models/pokemon-detail.model";
 import { AuthService } from "./auth.service";
 
 @Injectable( {
@@ -15,12 +16,31 @@ export class PokemonService {
     private readonly authService: AuthService
   ) {}
 
-  public getPokemons( page: number, size: number ): Observable<PokemonPageModel> {
+  private getAuthHeaders(): HttpHeaders | undefined {
     const token = this.authService.getToken();
-    const headers = token
+    return token
       ? new HttpHeaders( { Authorization: `Bearer ${ token }` } )
       : undefined;
+  }
+
+  public getPokemons( page: number, size: number ): Observable<PokemonPageModel> {
+    const headers = this.getAuthHeaders();
 
     return this.http.get<PokemonPageModel>( `${ this.apiUrl }?page=${ page }&size=${ size }`, { headers } );
+  }
+
+  public getPokemonById( pokedexId: number ): Observable<PokemonDetailModel> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<PokemonDetailModel>( `${ this.apiUrl }/${ pokedexId }`, { headers } );
+  }
+
+  public updateCaptureStatus( pokedexId: number, captured: boolean ): Observable<PokemonDetailModel> {
+    const headers = this.getAuthHeaders();
+    const body = {
+      pokedexId,
+      captured
+    };
+
+    return this.http.post<PokemonDetailModel>( `${ this.apiUrl }/${ pokedexId }`, body, { headers } );
   }
 }

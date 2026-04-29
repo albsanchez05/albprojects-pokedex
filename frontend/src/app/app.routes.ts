@@ -11,6 +11,11 @@ export const routes: Routes = [
         loadComponent: () => import("./auth/register/register").then( m => m.Register )
     },
     {
+        path: "pokedex/:id",
+        canActivate: [authGuard],
+        loadComponent: () => import("./features/pokemon/pokemon-detail/pokemon-detail").then( m => m.PokemonDetail )
+    },
+    {
         path: "pokedex",
         canActivate: [authGuard],
         loadComponent: () => import("./features/pokemon/pokedex-grid/pokedex-grid").then( m => m.PokedexGrid )
