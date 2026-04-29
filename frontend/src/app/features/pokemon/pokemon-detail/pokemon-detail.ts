@@ -1,10 +1,11 @@
 import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from "@angular/core";
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { finalize, timeout } from "rxjs";
 import { PokemonDetailModel } from "../../../core/models/pokemon-detail.model";
 import { Navbar } from "../../../core/components/navbar/navbar";
 import { PokemonService } from "../../../core/services/pokemon.service";
+import { AuthService } from "../../../core/services/auth.service";
 
 @Component( {
   selector: "app-pokemon-detail",
@@ -15,12 +16,15 @@ import { PokemonService } from "../../../core/services/pokemon.service";
 export class PokemonDetail implements OnInit {
   public pokemon: PokemonDetailModel | null = null;
   public isLoading = true;
+  public isAdmin = false;
   public isSaving = false;
   public errorMessage = "";
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly pokemonService: PokemonService,
+    private readonly authService: AuthService,
     private readonly changeDetectorRef: ChangeDetectorRef,
     @Inject( PLATFORM_ID ) private readonly platformId: object
   ) {}
@@ -29,6 +33,13 @@ export class PokemonDetail implements OnInit {
     if ( !isPlatformBrowser( this.platformId ) ) {
       return;
     }
+
+    this.authService.resolveAdminStatus().subscribe( {
+      next: ( isAdminUser ) => {
+        this.isAdmin = isAdminUser;
+        this.changeDetectorRef.detectChanges();
+      }
+    } );
 
     const idParam = this.route.snapshot.paramMap.get( "id" );
     const pokedexId = Number( idParam );
@@ -64,6 +75,35 @@ export class PokemonDetail implements OnInit {
         },
         error: () => {
           this.errorMessage = "Could not update capture status.";
+          this.changeDetectorRef.detectChanges();
+        }
+      } );
+  }
+
+  public deletePokemon(): void {
+    if ( !this.pokemon || !this.isAdmin || this.isSaving ) {
+      return;
+    }
+
+    if ( !confirm( `Are you sure you want to delete ${ this.pokemon.name }?` ) ) {
+      return;
+    }
+
+    this.isSaving = true;
+    this.errorMessage = "";
+
+    this.pokemonService.deletePokemon( this.pokemon.pokemonId )
+      .pipe( finalize( () => {
+        this.isSaving = false;
+        this.changeDetectorRef.detectChanges();
+      } ) )
+      .subscribe( {
+        next: () => {
+          // Redirect back to grid after deletion
+          this.router.navigate( ["/pokedex"] );
+        },
+        error: () => {
+          this.errorMessage = "Could not delete Pokemon.";
           this.changeDetectorRef.detectChanges();
         }
       } );

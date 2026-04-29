@@ -43,4 +43,14 @@ export class PokemonService {
 
     return this.http.post<PokemonDetailModel>( `${ this.apiUrl }/${ pokedexId }`, body, { headers } );
   }
+
+  public registerPokemon( pokemon: PokemonDetailModel ): Observable<PokemonDetailModel> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<PokemonDetailModel>( this.apiUrl, pokemon, { headers } );
+  }
+
+  public deletePokemon( pokedexId: number ): Observable<void> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>( `${ this.apiUrl }/${ pokedexId }`, { headers } );
+  }
 }
