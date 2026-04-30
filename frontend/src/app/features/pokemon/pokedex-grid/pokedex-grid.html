@@ -1,89 +1,86 @@
 <app-navbar />
 
-<main class="min-h-screen bg-slate-100 p-6">
-  <section class="mx-auto max-w-6xl">
-    <header class="mb-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-slate-800">Pokedex</h1>
-          <p class="text-slate-600">Browse the registered Pokemon page by page.</p>
-        </div>
-        <button
-          *ngIf="isAdmin"
-          type="button"
-          (click)="toggleRegisterForm()"
-          class="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-        >
-          {{ showRegisterForm ? "Cancel" : "+ Register Pokemon" }}
-        </button>
+<main class="pokedex-scene">
+  <section class="pokedex-shell">
+    <header class="pokedex-shell__header">
+      <div>
+        <h1 class="pokedex-title">Kanto Pokedex</h1>
+        <p class="pokedex-subtitle">Scan, inspect and manage registered Pokemon entries.</p>
       </div>
+      <button
+        *ngIf="isAdmin"
+        type="button"
+        (click)="toggleRegisterForm()"
+        class="pokedex-admin-button"
+      >
+        {{ showRegisterForm ? "Close Register Panel" : "+ Register Pokemon" }}
+      </button>
     </header>
 
-    <section *ngIf="isAdmin && showRegisterForm" class="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 class="mb-4 text-lg font-semibold text-slate-800">Register New Pokemon</h2>
+    <section *ngIf="isAdmin && showRegisterForm" class="register-panel">
+      <h2>Register New Pokemon</h2>
 
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <input [(ngModel)]="newPokemon.pokemonId" type="number" min="1" placeholder="Pokedex ID" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.name" type="text" placeholder="Name" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.type1" type="text" placeholder="Type 1" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.type2" type="text" placeholder="Type 2 ( optional )" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.hp" type="number" min="1" placeholder="HP" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.attack" type="number" min="1" placeholder="Attack" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.defense" type="number" min="1" placeholder="Defense" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.spAttack" type="number" min="1" placeholder="Sp. Attack" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.spDefense" type="number" min="1" placeholder="Sp. Defense" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.speed" type="number" min="1" placeholder="Speed" class="rounded border border-slate-300 px-3 py-2 text-sm" />
-        <input [(ngModel)]="newPokemon.image" type="text" placeholder="Image URL" class="rounded border border-slate-300 px-3 py-2 text-sm sm:col-span-2 lg:col-span-2" />
+      <div class="register-grid">
+        <input [(ngModel)]="newPokemon.pokemonId" type="number" min="1" placeholder="Pokedex ID" />
+        <input [(ngModel)]="newPokemon.name" type="text" placeholder="Name" />
+        <input [(ngModel)]="newPokemon.type1" type="text" placeholder="Type 1" />
+        <input [(ngModel)]="newPokemon.type2" type="text" placeholder="Type 2 ( optional )" />
+        <input [(ngModel)]="newPokemon.hp" type="number" min="1" placeholder="HP" />
+        <input [(ngModel)]="newPokemon.attack" type="number" min="1" placeholder="Attack" />
+        <input [(ngModel)]="newPokemon.defense" type="number" min="1" placeholder="Defense" />
+        <input [(ngModel)]="newPokemon.spAttack" type="number" min="1" placeholder="Sp. Attack" />
+        <input [(ngModel)]="newPokemon.spDefense" type="number" min="1" placeholder="Sp. Defense" />
+        <input [(ngModel)]="newPokemon.speed" type="number" min="1" placeholder="Speed" />
+        <input [(ngModel)]="newPokemon.image" type="text" placeholder="Image URL" class="register-grid__image" />
       </div>
 
-      <p *ngIf="registerErrorMessage" class="mt-3 text-sm text-red-600">{{ registerErrorMessage }}</p>
-      <p *ngIf="registerSuccessMessage" class="mt-3 text-sm text-emerald-700">{{ registerSuccessMessage }}</p>
+      <p *ngIf="registerErrorMessage" class="register-message register-message--error">{{ registerErrorMessage }}</p>
+      <p *ngIf="registerSuccessMessage" class="register-message register-message--success">{{ registerSuccessMessage }}</p>
 
-      <div class="mt-4">
+      <div>
         <button
           type="button"
           (click)="registerPokemon()"
           [disabled]="isRegistering"
-          class="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          class="register-save-button"
         >
           {{ isRegistering ? "Registering..." : "Save Pokemon" }}
         </button>
       </div>
     </section>
 
-    <p *ngIf="isLoading" class="text-slate-600">Loading Pokemons...</p>
-    <p *ngIf="errorMessage" class="text-red-600">{{ errorMessage }}</p>
+    <section class="pokedex-screen">
+      <p *ngIf="isLoading" class="panel-message">Loading Pokemons...</p>
+      <p *ngIf="errorMessage" class="panel-message panel-message--error">{{ errorMessage }}</p>
 
-    <div
-      *ngIf="pokemonPage"
-      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
-    >
-      <app-pokemon-card
-        *ngFor="let pokemon of pokemonPage.content"
-        [pokemon]="pokemon"
-      />
-    </div>
+      <div *ngIf="pokemonPage" class="pokemon-grid">
+        <app-pokemon-card
+          *ngFor="let pokemon of pokemonPage.content"
+          [pokemon]="pokemon"
+        />
+      </div>
+    </section>
 
-    <div *ngIf="pokemonPage" class="mt-8 flex items-center justify-between">
+    <footer *ngIf="pokemonPage" class="pokedex-controls">
       <button
         (click)="goToPreviousPage()"
         [disabled]="pokemonPage.first"
-        class="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-50"
+        class="control-button"
       >
         Previous
       </button>
 
-      <span class="text-sm text-slate-600">
+      <span class="control-page-label">
         Page {{ pokemonPage.number + 1 }} of {{ pokemonPage.totalPages }}
       </span>
 
       <button
         (click)="goToNextPage()"
         [disabled]="pokemonPage.last"
-        class="rounded bg-slate-800 px-4 py-2 text-white disabled:opacity-50"
+        class="control-button"
       >
         Next
       </button>
-    </div>
+    </footer>
   </section>
 </main>

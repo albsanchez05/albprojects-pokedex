@@ -1,0 +1,182 @@
+.pokedex-scene {
+	background:
+		radial-gradient( circle at 10% 20%, rgba( 255, 255, 255, 0.12 ) 0%, rgba( 255, 255, 255, 0 ) 45% ),
+		repeating-linear-gradient( -45deg, #8b0000 0, #8b0000 12px, #9f1111 12px, #9f1111 24px );
+	min-height: calc( 100vh - 65px );
+	padding: 1.2rem;
+}
+
+.pokedex-shell {
+	animation: bootIn 380ms ease-out;
+	background: linear-gradient( 145deg, #ef4444 0%, #cf1717 60%, #a70d0d 100% );
+	border: 4px solid #7f1d1d;
+	border-radius: 24px;
+	box-shadow: 0 24px 60px rgba( 0, 0, 0, 0.35 );
+	margin: 0 auto;
+	max-width: 1120px;
+	padding: 1rem;
+}
+
+.pokedex-shell__header {
+	align-items: center;
+	display: flex;
+	gap: 0.8rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.pokedex-title {
+	color: #fef2f2;
+	font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+	font-size: clamp( 1.25rem, 3vw, 2rem );
+	font-weight: 900;
+	letter-spacing: 0.03em;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.pokedex-subtitle {
+	color: #fee2e2;
+	margin: 0.25rem 0 0;
+}
+
+.pokedex-admin-button,
+.register-save-button,
+.control-button {
+	border: 2px solid #1f2937;
+	border-radius: 12px;
+	cursor: pointer;
+	font-weight: 700;
+	padding: 0.55rem 1rem;
+}
+
+.pokedex-admin-button,
+.register-save-button {
+	background: #10b981;
+	color: #ecfeff;
+}
+
+.pokedex-admin-button:hover,
+.register-save-button:hover {
+	background: #059669;
+}
+
+.register-panel {
+	background: #ffe4e6;
+	border: 3px solid #7f1d1d;
+	border-radius: 16px;
+	margin-bottom: 1rem;
+	padding: 0.9rem;
+}
+
+.register-panel h2 {
+	margin: 0 0 0.75rem;
+}
+
+.register-grid {
+	display: grid;
+	gap: 0.55rem;
+	grid-template-columns: repeat( auto-fit, minmax( 150px, 1fr ) );
+}
+
+.register-grid input {
+	border: 2px solid #d1d5db;
+	border-radius: 10px;
+	font-size: 0.9rem;
+	padding: 0.5rem 0.65rem;
+}
+
+.register-grid__image {
+	grid-column: span 2;
+}
+
+.register-message {
+	font-weight: 600;
+	margin: 0.65rem 0;
+}
+
+.register-message--error,
+.panel-message--error {
+	color: #991b1b;
+}
+
+.register-message--success {
+	color: #065f46;
+}
+
+.pokedex-screen {
+	background: linear-gradient( 180deg, #f0fdf4 0%, #dcfce7 100% );
+	border: 6px solid #111827;
+	border-radius: 16px;
+	min-height: 360px;
+	padding: 1rem;
+}
+
+.panel-message {
+	color: #334155;
+	font-weight: 600;
+	margin: 0.3rem 0 0.9rem;
+}
+
+.pokemon-grid {
+	display: grid;
+	gap: 0.7rem;
+	grid-template-columns: repeat( auto-fit, minmax( 150px, 1fr ) );
+}
+
+.pokedex-controls {
+	align-items: center;
+	background: #111827;
+	border-radius: 14px;
+	color: #f8fafc;
+	display: flex;
+	justify-content: space-between;
+	margin-top: 1rem;
+	padding: 0.75rem;
+}
+
+.control-button {
+	background: #facc15;
+	color: #111827;
+}
+
+.control-button:hover {
+	background: #eab308;
+}
+
+.control-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.45;
+}
+
+.control-page-label {
+	font-weight: 700;
+}
+
+@keyframes bootIn {
+	from {
+		opacity: 0;
+		transform: translateY( 8px ) scale( 0.98 );
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY( 0 ) scale( 1 );
+	}
+}
+
+@media ( max-width: 640px ) {
+	.pokedex-shell__header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.register-grid__image {
+		grid-column: span 1;
+	}
+
+	.pokedex-controls {
+		flex-direction: column;
+		gap: 0.55rem;
+	}
+}

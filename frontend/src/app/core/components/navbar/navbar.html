@@ -1,4 +1,12 @@
-<nav class="w-full bg-slate-900 text-white px-6 py-3 flex items-center justify-between">
-	<a routerLink="/pokedex" class="font-bold">Pokedex</a>
-	<button (click)="logout()" class="rounded bg-red-500 px-3 py-1 text-sm font-semibold hover:bg-red-600"> Logout </button>
+<nav class="pokedex-navbar">
+	<div class="pokedex-navbar__lights" aria-hidden="true">
+		<span class="light light--main"></span>
+		<span class="light light--red"></span>
+		<span class="light light--yellow"></span>
+		<span class="light light--green"></span>
+	</div>
+
+	<a routerLink="/pokedex" class="pokedex-navbar__brand">Pokedex Console</a>
+
+	<button (click)="logout()" class="pokedex-navbar__logout">Logout</button>
 </nav>
