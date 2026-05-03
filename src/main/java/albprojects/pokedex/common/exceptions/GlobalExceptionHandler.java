@@ -157,4 +157,18 @@ public class GlobalExceptionHandler
         );
         return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( errorResponse );
     }
+
+    // Handles exceptions from external API integrations.
+    @ExceptionHandler( ExternalIntegrationException.class )
+    public ResponseEntity<Map<String, Object>> handleExternalIntegrationException( ExternalIntegrationException e, WebRequest request )
+    {
+        Map<String, Object> errorResponse = Map.of(
+            "timestamp", Instant.now(),
+            "status", e.getStatus().value(),
+            "error", e.getStatus().getReasonPhrase(),
+            "message", e.getMessage(),
+            "path", request.getDescription( false ).replace( "uri=", "" )
+        );
+        return ResponseEntity.status( e.getStatus() ).body( errorResponse );
+    }
 }
