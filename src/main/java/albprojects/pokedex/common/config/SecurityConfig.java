@@ -35,6 +35,7 @@ public class SecurityConfig
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String USER_ROLE = "USER";
     public static final String URL_H2_CONSOLE = "/h2-console/**";
+    public static final String URL_API_POKEMONS_EXTERNAL = "/api/pokemons/external/**";
 
     // Configures the authentication provider to use our custom user details service and password encoder.
     @Bean
@@ -81,6 +82,10 @@ public class SecurityConfig
                 .requestMatchers( "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**" ).permitAll()
                 // Publicly accessible H2 console for local development.
                 .requestMatchers( URL_H2_CONSOLE ).permitAll()
+                // External Pokemon data management requires ADMIN role.
+                .requestMatchers( HttpMethod.GET, URL_API_POKEMONS_EXTERNAL ).hasRole( ADMIN_ROLE )
+                // Importing external Pokemon data requires ADMIN role.
+                .requestMatchers( HttpMethod.POST, URL_API_POKEMONS_EXTERNAL ).hasRole( ADMIN_ROLE )
                 // Read operations require USER or ADMIN role.
                 .requestMatchers( HttpMethod.GET, URL_API_POKEMONS ).hasAnyRole( USER_ROLE, ADMIN_ROLE )
                 // Capture operation requires USER or ADMIN role.

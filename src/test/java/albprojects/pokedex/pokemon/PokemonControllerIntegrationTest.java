@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -17,8 +18,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import albprojects.pokedex.integration.pokeapi.PokeApiClientService;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,6 +38,9 @@ class PokemonControllerIntegrationTest
 
     @Autowired
     private PokemonRepository pokemonRepository;
+
+    @MockBean
+    private PokeApiClientService pokeApiClientService;
 
     private MockMvc mockMvc;
 
@@ -307,5 +314,113 @@ class PokemonControllerIntegrationTest
 
         // Verify that the Pokemon no longer exists.
         assertFalse( pokemonRepository.existsByPokedexId( 1 ) );
+    }
+
+    @Test
+    @DisplayName( "GET /pokemons/external/{idOrName} should return external pokemon for ADMIN" )
+    @WithMockUser( roles = "ADMIN" )
+    void testSearchExternalPokemonAsAdmin( ) throws Exception
+    {
+        PokemonCompleteDTO externalPokemon = new PokemonCompleteDTO(
+                25,
+                "Pikachu",
+                "Electric",
+                null,
+                35,
+                55,
+                40,
+                50,
+                50,
+                90,
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+                false
+        );
+
+        when( pokeApiClientService.fetchPokemonByIdOrName( "pikachu" ) ).thenReturn( externalPokemon );
+
+        mockMvc.perform( get( "/api/pokemons/external/pikachu" ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.pokemonId" ).value( 25 ) )
+                .andExpect( jsonPath( "$.name" ).value( "Pikachu" ) )
+                .andExpect( jsonPath( "$.type1" ).value( "Electric" ) );
+    }
+
+    @Test
+    @DisplayName( "GET /pokemons/external/{idOrName} should return forbidden for USER" )
+    @WithMockUser( roles = "USER" )
+    void testSearchExternalPokemonAsUserForbidden( ) throws Exception
+    {
+        mockMvc.perform( get( "/api/pokemons/external/pikachu" ) )
+                .andExpect( status().isForbidden() );
+    }
+
+    @Test
+    @DisplayName( "POST /pokemons/external/{idOrName}/import should import pokemon for ADMIN" )
+    @WithMockUser( roles = "ADMIN" )
+    void testImportExternalPokemonAsAdmin( ) throws Exception
+    {
+        PokemonCompleteDTO externalPokemon = new PokemonCompleteDTO(
+                25,
+                "Pikachu",
+                "Electric",
+                null,
+                35,
+                55,
+                40,
+                50,
+                50,
+                90,
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+                false
+        );
+
+        when( pokeApiClientService.fetchPokemonByIdOrName( "pikachu" ) ).thenReturn( externalPokemon );
+
+        mockMvc.perform( post( "/api/pokemons/external/pikachu/import" ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.pokemonId" ).value( 25 ) )
+                .andExpect( jsonPath( "$.name" ).value( "Pikachu" ) );
+
+        assertTrue( pokemonRepository.existsByPokedexId( 25 ) );
+    }
+
+    @Test
+    @DisplayName( "POST /pokemons/external/{idOrName}/import should return forbidden for USER" )
+    @WithMockUser( roles = "USER" )
+    void testImportExternalPokemonAsUserForbidden( ) throws Exception
+    {
+        mockMvc.perform( post( "/api/pokemons/external/pikachu/import" ) )
+                .andExpect( status().isForbidden() );
+    }
+
+    @Test
+    @DisplayName( "POST /pokemons/external/{idOrName}/import should return bad request when pokemon already exists" )
+    @WithMockUser( roles = "ADMIN" )
+    void testImportExternalPokemonDuplicate( ) throws Exception
+    {
+        PokemonCompleteDTO externalPokemon = new PokemonCompleteDTO(
+                25,
+                "Pikachu",
+                "Electric",
+                null,
+                35,
+                55,
+                40,
+                50,
+                50,
+                90,
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+                false
+        );
+
+        when( pokeApiClientService.fetchPokemonByIdOrName( "pikachu" ) ).thenReturn( externalPokemon );
+
+        mockMvc.perform( post( "/api/pokemons/external/pikachu/import" ) )
+                .andExpect( status().isOk() );
+
+        mockMvc.perform( post( "/api/pokemons/external/pikachu/import" ) )
+                .andExpect( status().isBadRequest() )
+                .andExpect( jsonPath( "$.status" ).value( 400 ) )
+                .andExpect( jsonPath( "$.message" ).value( "Pokemon with this ID has already been registered" ) );
     }
 }

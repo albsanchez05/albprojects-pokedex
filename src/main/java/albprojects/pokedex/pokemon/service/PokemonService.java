@@ -13,11 +13,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import albprojects.pokedex.integration.pokeapi.PokeApiClientService;
 
 @Service
 public class PokemonService {
     @Autowired
     PokemonRepository pokemonRepository;
+
+    @Autowired
+    PokeApiClientService pokeApiClientService;
 
     public Page<PokemonBriefDTO> getAllPokemons( Pageable pageable ) {
         Page<Pokemon> pokemonPage = pokemonRepository.findAllByOrderByPokedexIdAsc( pageable );
@@ -128,5 +132,15 @@ public class PokemonService {
     }
     public boolean existsByName( String name ) {
         return pokemonRepository.existsByName( name );
+    }
+
+    public PokemonCompleteDTO searchExternalPokemon( String idOrName ) {
+        return pokeApiClientService.fetchPokemonByIdOrName( idOrName );
+    }
+
+    @Transactional
+    public PokemonCompleteDTO importExternalPokemon( String idOrName ) {
+        PokemonCompleteDTO externalPokemon = pokeApiClientService.fetchPokemonByIdOrName( idOrName );
+        return registerPokemon( externalPokemon );
     }
 }

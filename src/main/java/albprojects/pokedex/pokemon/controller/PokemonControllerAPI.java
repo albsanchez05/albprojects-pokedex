@@ -68,4 +68,19 @@ public interface PokemonControllerAPI {
     @Parameter( name = "pokedexId", description = "The Pokedex ID of the Pokemon to unregister", example = "1" )
     @ResponseStatus( HttpStatus.NO_CONTENT )
     void releasePokemon( @PathVariable Integer pokedexId );
+
+    @Operation( summary = "Search Pokemon from external source", description = "Retrieve Pokemon data from PokeAPI without persisting it in the local database. Admin only." )
+    @ApiResponse( responseCode = "200", description = "Successfully retrieved Pokemon data from external source" )
+    @ApiResponse( responseCode = "404", description = "Pokemon not found in external source" )
+    @ApiResponse( responseCode = "403", description = "Forbidden for non-admin users" )
+    @Parameter( name = "idOrName", description = "Pokemon identifier or name to search in external source", example = "pikachu" )
+    PokemonCompleteDTO searchExternalPokemon( @PathVariable String idOrName );
+
+    @Operation( summary = "Import Pokemon from external source", description = "Fetch Pokemon data from PokeAPI and register it in the local Pokedex database. Admin only." )
+    @ApiResponse( responseCode = "200", description = "Successfully imported and registered Pokemon" )
+    @ApiResponse( responseCode = "400", description = "Pokemon already exists locally" )
+    @ApiResponse( responseCode = "404", description = "Pokemon not found in external source" )
+    @ApiResponse( responseCode = "403", description = "Forbidden for non-admin users" )
+    @Parameter( name = "idOrName", description = "Pokemon identifier or name to import from external source", example = "25" )
+    PokemonCompleteDTO importExternalPokemon( @PathVariable String idOrName );
 }

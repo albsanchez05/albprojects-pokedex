@@ -57,4 +57,16 @@ public class PokemonController implements PokemonControllerAPI {
     public void releasePokemon( @PathVariable Integer pokedexId ) {
         pokemonService.unregisterPokemon( pokedexId );
     }
+
+    @Override
+    @GetMapping( "/pokemons/external/{idOrName}" )
+    public PokemonCompleteDTO searchExternalPokemon( @PathVariable String idOrName ) {
+        return pokemonService.searchExternalPokemon( idOrName );
+    }
+
+    @Override
+    @PostMapping( "/pokemons/external/{idOrName}/import" )
+    public PokemonCompleteDTO importExternalPokemon( @PathVariable String idOrName ) {
+        return pokemonService.importExternalPokemon( idOrName );
+    }
 }
