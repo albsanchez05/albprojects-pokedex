@@ -35,7 +35,7 @@ Spring Boot + Angular Pokédex application delivered by phases. The backend owns
 Use this when the machine can reach public HTTPS endpoints without a custom corporate certificate requirement.
 
 ```powershell
-cd "PATH OF THE PROJECT"
+cd "PROJECT ROOT PATH"
 docker-compose up --build -d
 ```
 
@@ -45,26 +45,24 @@ Access:
 - Swagger UI: `http://localhost:8082/swagger-ui.html`
 - PostgreSQL: `localhost:5444`
 
+If you get a `402` in the browser during this standard Docker run ( or any unexpected `4xx` from frontend requests ):
+
+1. Confirm backend is up with `http://localhost:8082/swagger-ui.html`.
+2. Rebuild frontend container without cache to refresh Nginx and static files.
+3. Restart the full stack.
+
+```powershell
+cd "PROJECT ROOT PATH"
+docker-compose build --no-cache pokedex-frontend
+docker-compose down
+docker-compose up -d
+```
+
 Stop:
 
 ```powershell
 docker-compose down -v
 ```
-
-## Environment Variables
-
-The project root contains `.env.example` with the main Docker variables used by PO/QA.
-
-Most important backend variables:
-
-- `SPRING_DATASOURCE_URL`
-- `SPRING_DATASOURCE_USERNAME`
-- `SPRING_DATASOURCE_PASSWORD`
-- `INTEGRATION_POKEAPI_BASE_URL`
-- `INTEGRATION_POKEAPI_CONNECT_TIMEOUT_MS`
-- `INTEGRATION_POKEAPI_READ_TIMEOUT_MS`
-- `INTEGRATION_POKEAPI_ENABLED`
-- `JAVA_TOOL_OPTIONS` ( Docker only, optional )
 
 ### Local Setup
 
@@ -97,14 +95,14 @@ $env:MAVEN_OPTS="-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djava.net.useSyste
 Then start the backend:
 
 ```powershell
-cd "PATH OF THE PROJECT"
+cd "PROJECT ROOT PATH"
 .\mvnw.cmd spring-boot:run
 ```
 
 Start the frontend in another terminal:
 
 ```powershell
-cd "PATH OF THE FOLDER FRONTEND WITHIN THE PROJECT"
+cd "PROJECT ROOT PATH\frontend"
 npm install
 npm start
 ```

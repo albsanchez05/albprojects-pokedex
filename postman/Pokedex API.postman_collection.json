@@ -142,6 +142,49 @@
 					"response": []
 				},
 				{
+					"name": "Search External Pokemon (Admin Only)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pokemons/external/25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons",
+								"external",
+								"25"
+							]
+						},
+						"description": "Fetches Pokemon data from PokeAPI through the backend integration layer. Requires ADMIN role."
+					},
+					"response": []
+				},
+				{
+					"name": "Import External Pokemon (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pokemons/external/pikachu/import",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pokemons",
+								"external",
+								"pikachu",
+								"import"
+							]
+						},
+						"description": "Imports a Pokemon from PokeAPI into the local database. First call returns 200, repeated call for the same Pokemon returns 400. Requires ADMIN role."
+					},
+					"response": []
+				},
+				{
 					"name": "Register Pokemon (Admin Only)",
 					"request": {
 						"method": "POST",

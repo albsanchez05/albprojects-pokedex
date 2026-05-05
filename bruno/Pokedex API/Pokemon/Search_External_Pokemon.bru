@@ -1,0 +1,24 @@
+meta {
+  name: Search External Pokemon (Admin Only)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/api/pokemons/external/25
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+docs {
+  ## Search External Pokemon (Admin Only)
+
+  Calls the backend external integration endpoint to preview Pokemon data from PokeAPI.
+
+  **Note:** This endpoint requires an **ADMIN** role.
+}
+

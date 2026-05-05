@@ -1,0 +1,24 @@
+meta {
+  name: Import External Pokemon (Admin Only)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/api/pokemons/external/pikachu/import
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwt_token}}
+}
+
+docs {
+  ## Import External Pokemon (Admin Only)
+
+  Imports a Pokemon from PokeAPI into the local Pokedex database.
+
+  **Expected behavior:** first call returns `200`, repeated call for the same Pokemon returns `400`.
+}
+
