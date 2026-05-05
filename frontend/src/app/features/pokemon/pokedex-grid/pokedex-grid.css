@@ -104,6 +104,64 @@
 	color: #065f46;
 }
 
+.external-import-panel {
+  background: #fef3c7;
+  border: 2px dashed #92400e;
+  border-radius: 12px;
+  margin-bottom: 0.8rem;
+  padding: 0.75rem;
+}
+
+.external-import-panel h3 {
+  margin: 0 0 0.55rem;
+}
+
+.external-import-row {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: 1.5fr auto auto;
+}
+
+.external-import-input {
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.external-search-button,
+.external-import-button {
+  border: 2px solid #1f2937;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+}
+
+.external-search-button {
+  background: #2563eb;
+  color: #eff6ff;
+}
+
+.external-search-button:hover {
+  background: #1d4ed8;
+}
+
+.external-import-button {
+  background: #7c3aed;
+  color: #f5f3ff;
+}
+
+.external-import-button:hover {
+  background: #6d28d9;
+}
+
+.external-search-button:disabled,
+.external-import-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .pokedex-screen {
 	background: linear-gradient( 180deg, #f0fdf4 0%, #dcfce7 100% );
 	border: 6px solid #111827;
@@ -179,4 +237,8 @@
 		flex-direction: column;
 		gap: 0.55rem;
 	}
+
+	.external-import-row {
+    grid-template-columns: 1fr;
+  }
 }

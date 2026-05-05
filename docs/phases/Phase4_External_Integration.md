@@ -31,6 +31,13 @@ Integrate the backend with PokeAPI and expose controlled import/search capabilit
 
 Phase 3 already provides authenticated UI flows ( list, detail, capture, admin actions ) and stable backend JWT-based protection. Pokemon creation is manual through existing API contract.
 
+Phase 4 now also includes:
+
+- Backend external integration package under `src/main/java/albprojects/pokedex/integration/pokeapi/`
+- Admin-only backend endpoints for external search/import
+- Angular admin import/search panel in `frontend/src/app/features/pokemon/pokedex-grid/`
+- Improved upstream error mapping for timeout, DNS, and TLS/certificate failures
+
 - Relevant files: `src/main/java/albprojects/pokedex/pokemon/controller/PokemonController.java`
 - Relevant files: `src/main/java/albprojects/pokedex/pokemon/service/PokemonService.java`
 - Relevant files: `src/main/java/albprojects/pokedex/common/config/SecurityConfig.java`
@@ -66,3 +73,38 @@ Phase 3 already provides authenticated UI flows ( list, detail, capture, admin a
 - `cd frontend && npm install && npm run build`
 - Manual check: login as `ADMIN`, import a Pokemon from external source, save it, then verify list/detail locally.
 - Manual check: login as `USER` and confirm import actions are not visible.
+
+## PO / QA Environment Notes
+
+### Recommended validation path
+
+For PO/QA on Windows inside the corporate network, prefer a local host execution of the backend with the Windows certificate store enabled for Java:
+
+```powershell
+$env:MAVEN_OPTS="-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djava.net.useSystemProxies=true"
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex"
+.\mvnw.cmd spring-boot:run
+```
+
+Then run the frontend locally:
+
+```powershell
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex\frontend"
+npm start
+```
+
+### Why this matters
+
+PokeAPI is called by the backend over HTTPS. In a corporate network with TLS inspection, Java may reject the re-signed certificate unless it is told to trust the Windows certificate store.
+
+### Docker note
+
+Docker can still be used for standard environments, but in a corporate TLS-inspected network the Linux container will require a custom Java truststore. This is now exposed through `JAVA_TOOL_OPTIONS` in `docker-compose.yaml`, but the truststore itself must be provided outside the repository.
+
+### Suggested manual evidence for Phase 4
+
+- Swagger: `GET /api/pokemons/external/25` returns `200` as `ADMIN`
+- Swagger: `POST /api/pokemons/external/pikachu/import` returns `200` on first call and `400` on second call
+- UI: admin sees the external import panel and can import a Pokemon
+- UI: regular user does not see the admin panel
+

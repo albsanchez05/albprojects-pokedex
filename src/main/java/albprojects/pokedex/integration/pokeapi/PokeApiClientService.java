@@ -12,6 +12,11 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import javax.net.ssl.SSLException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
 @Service
 public class PokeApiClientService
 {
@@ -69,9 +74,38 @@ public class PokeApiClientService
         }
         catch( ResourceAccessException ex )
         {
+            Throwable rootCause = getRootCause( ex );
+
+            if( rootCause instanceof SSLException )
+            {
+                throw new ExternalIntegrationException(
+                    "External Pokemon TLS/certificate issue: " + rootCause.getMessage(),
+                    HttpStatus.BAD_GATEWAY,
+                    ex
+                );
+            }
+
+            if( rootCause instanceof UnknownHostException )
+            {
+                throw new ExternalIntegrationException(
+                    "External Pokemon DNS resolution failed: " + rootCause.getMessage(),
+                    HttpStatus.BAD_GATEWAY,
+                    ex
+                );
+            }
+
+            if( rootCause instanceof SocketTimeoutException || rootCause instanceof ConnectException )
+            {
+                throw new ExternalIntegrationException(
+                    "External Pokemon service timeout or network issue",
+                    HttpStatus.GATEWAY_TIMEOUT,
+                    ex
+                );
+            }
+
             throw new ExternalIntegrationException(
-                "External Pokemon service timeout or network issue",
-                HttpStatus.GATEWAY_TIMEOUT,
+                "External Pokemon network access failed: " + rootCause.getMessage(),
+                HttpStatus.BAD_GATEWAY,
                 ex
             );
         }
@@ -91,5 +125,15 @@ public class PokeApiClientService
                 ex
             );
         }
+    }
+
+    private Throwable getRootCause( Throwable throwable )
+    {
+        Throwable current = throwable;
+        while( current.getCause() != null && current.getCause() != current )
+        {
+            current = current.getCause();
+        }
+        return current;
     }
 }

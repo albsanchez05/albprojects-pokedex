@@ -20,6 +20,44 @@
     <section *ngIf="isAdmin && showRegisterForm" class="register-panel">
       <h2>Register New Pokemon</h2>
 
+      <div class="external-import-panel">
+        <h3>Import From External Source ( PokeAPI )</h3>
+
+        <div class="external-import-row">
+          <input
+            [(ngModel)]="externalSearchQuery"
+            type="text"
+            placeholder="Pokemon name or ID ( e.g., pikachu or 25 )"
+            class="external-import-input"
+          />
+
+          <button
+            type="button"
+            (click)="searchExternalPokemon()"
+            [disabled]="isSearchingExternal || isImportingExternal"
+            class="external-search-button"
+          >
+            {{ isSearchingExternal ? "Searching..." : "Search External" }}
+          </button>
+
+          <button
+            type="button"
+            (click)="importExternalPokemon()"
+            [disabled]="isImportingExternal || isSearchingExternal"
+            class="external-import-button"
+          >
+            {{ isImportingExternal ? "Importing..." : "Import to Local DB" }}
+          </button>
+        </div>
+
+        <p *ngIf="externalSearchErrorMessage" class="register-message register-message--error">
+          {{ externalSearchErrorMessage }}
+        </p>
+        <p *ngIf="externalSearchSuccessMessage" class="register-message register-message--success">
+          {{ externalSearchSuccessMessage }}
+        </p>
+      </div>
+
       <div class="register-grid">
         <input [(ngModel)]="newPokemon.pokemonId" type="number" min="1" placeholder="Pokedex ID" />
         <input [(ngModel)]="newPokemon.name" type="text" placeholder="Name" />

@@ -3,34 +3,42 @@ version: '3.8'
 services:
   mi-postgres:
     image: postgres:16-alpine
-    container_name: postgres-dev
+    container_name: ${POSTGRES_CONTAINER_NAME:-postgres-dev}
     restart: always
     environment:
-      POSTGRES_USER: professor-oak
-      POSTGRES_PASSWORD: gottacatchthemall
-      POSTGRES_DB: pokedex_database
+      POSTGRES_USER: ${POSTGRES_USER:-professor-oak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gottacatchthemall}
+      POSTGRES_DB: ${POSTGRES_DB:-pokedex_database}
     ports:
-      - "5444:5432"
+      - "${POSTGRES_PORT:-5444}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   pokedex-api:
     build: .
-    container_name: pokedex-api-dev
+    container_name: ${API_CONTAINER_NAME:-pokedex-api-dev}
     restart: always
     ports:
-      - "8082:8082"
+      - "${API_PORT:-8082}:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://mi-postgres:5432/pokedex_database
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://mi-postgres:5432/pokedex_database}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-professor-oak}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-gottacatchthemall}
+      SERVER_PORT: 8082
+      INTEGRATION_POKEAPI_BASE_URL: ${INTEGRATION_POKEAPI_BASE_URL:-https://pokeapi.co/api/v2}
+      INTEGRATION_POKEAPI_CONNECT_TIMEOUT_MS: ${INTEGRATION_POKEAPI_CONNECT_TIMEOUT_MS:-7000}
+      INTEGRATION_POKEAPI_READ_TIMEOUT_MS: ${INTEGRATION_POKEAPI_READ_TIMEOUT_MS:-20000}
+      INTEGRATION_POKEAPI_ENABLED: ${INTEGRATION_POKEAPI_ENABLED:-true}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:-}
     depends_on:
       - mi-postgres
 
   pokedex-frontend:
     build: ./frontend
-    container_name: pokedex-frontend-dev
+    container_name: ${FRONTEND_CONTAINER_NAME:-pokedex-frontend-dev}
     restart: always
     ports:
-      - "4200:80"
+      - "${FRONTEND_PORT:-4200}:80"
     depends_on:
       - pokedex-api
 

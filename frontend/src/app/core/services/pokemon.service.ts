@@ -53,4 +53,14 @@ export class PokemonService {
     const headers = this.getAuthHeaders();
     return this.http.delete<void>( `${ this.apiUrl }/${ pokedexId }`, { headers } );
   }
+
+  public searchExternalPokemon( idOrName: string ): Observable<PokemonDetailModel> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<PokemonDetailModel>( `${ this.apiUrl }/external/${ encodeURIComponent( idOrName ) }`, { headers } );
+  }
+
+  public importExternalPokemon( idOrName: string ): Observable<PokemonDetailModel> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<PokemonDetailModel>( `${ this.apiUrl }/external/${ encodeURIComponent( idOrName ) }/import`, {}, { headers } );
+  }
 }

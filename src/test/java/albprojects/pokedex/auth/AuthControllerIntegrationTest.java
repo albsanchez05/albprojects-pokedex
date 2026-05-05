@@ -47,7 +47,7 @@ class AuthControllerIntegrationTest
         mockMvc.perform( post( "/api/auth/register" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( payload ) )
-            .andExpect( status().isOk() )
+            .andExpect( status().isCreated() )
             .andExpect( jsonPath( "$.token" ).isNotEmpty() );
     }
 
@@ -71,7 +71,7 @@ class AuthControllerIntegrationTest
         mockMvc.perform( post( "/api/auth/register" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( registerPayload ) )
-            .andExpect( status().isOk() );
+            .andExpect( status().isCreated() );
 
         String loginPayload = """
             {
@@ -110,7 +110,7 @@ class AuthControllerIntegrationTest
         String registerResponse = mockMvc.perform( post( "/api/auth/register" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( registerPayload ) )
-            .andExpect( status().isOk() )
+            .andExpect( status().isCreated() )
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -152,7 +152,7 @@ class AuthControllerIntegrationTest
         mockMvc.perform( post( "/api/auth/register" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( registerPayload ) )
-            .andExpect( status().isOk() );
+            .andExpect( status().isCreated() );
 
         // Attempt login with the wrong password.
         String loginPayload = """
@@ -187,7 +187,7 @@ class AuthControllerIntegrationTest
         String registerResponse = mockMvc.perform( post( "/api/auth/register" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( registerPayload ) )
-            .andExpect( status().isOk() )
+            .andExpect( status().isCreated() )
             .andReturn()
             .getResponse()
             .getContentAsString();
@@ -240,7 +240,7 @@ class AuthControllerIntegrationTest
         String registerResponse = mockMvc.perform( post( "/api/auth/register" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( registerPayload ) )
-            .andExpect( status().isOk() )
+            .andExpect( status().isCreated() )
             .andReturn()
             .getResponse()
             .getContentAsString();

@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { isPlatformBrowser } from "@angular/common";
+import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { PokemonService } from "../../../core/services/pokemon.service";
 import { AuthService } from "../../../core/services/auth.service";
@@ -28,6 +27,12 @@ export class PokedexGrid implements OnInit {
   public currentPage = 0;
   public readonly pageSize = 5;
   public newPokemon: PokemonDetailModel = this.createEmptyPokemon();
+  public externalSearchQuery = "";
+  public isSearchingExternal = false;
+  public isImportingExternal = false;
+  public externalSearchErrorMessage = "";
+  public externalSearchSuccessMessage = "";
+  public externalPreviewLoaded = false;
 
   constructor(
     private readonly pokemonService: PokemonService,
@@ -109,6 +114,10 @@ export class PokedexGrid implements OnInit {
     this.showRegisterForm = !this.showRegisterForm;
     this.registerErrorMessage = "";
     this.registerSuccessMessage = "";
+    this.externalSearchQuery = "";
+    this.externalSearchErrorMessage = "";
+    this.externalSearchSuccessMessage = "";
+    this.externalPreviewLoaded = false;
 
     if ( this.showRegisterForm ) {
       this.newPokemon = this.createEmptyPokemon();
@@ -116,6 +125,8 @@ export class PokedexGrid implements OnInit {
   }
 
   public registerPokemon(): void {
+    this.externalSearchErrorMessage = "";
+    this.externalSearchSuccessMessage = "";
     if ( !this.isAdmin || this.isRegistering ) {
       return;
     }
@@ -189,5 +200,116 @@ export class PokedexGrid implements OnInit {
       image: "",
       captured: false
     };
+  }
+
+ public searchExternalPokemon(): void {
+  if ( !this.isAdmin || this.isSearchingExternal ) {
+    return;
+  }
+
+  const query = this.externalSearchQuery.trim();
+  if ( query.length === 0 ) {
+    this.externalSearchErrorMessage = "Please enter a Pokemon name or ID.";
+    this.externalSearchSuccessMessage = "";
+    return;
+  }
+
+  this.isSearchingExternal = true;
+  this.externalSearchErrorMessage = "";
+  this.externalSearchSuccessMessage = "";
+
+  this.pokemonService.searchExternalPokemon( query )
+    .pipe( finalize( () => {
+      this.isSearchingExternal = false;
+      this.changeDetectorRef.detectChanges();
+    } ) )
+    .subscribe( {
+      next: ( pokemon ) => {
+        this.newPokemon = {
+          ...pokemon,
+          captured: false
+        };
+        this.externalPreviewLoaded = true;
+        this.externalSearchSuccessMessage = "External Pokemon data loaded. Review and import or save.";
+      },
+      error: ( err ) => {
+        this.externalPreviewLoaded = false;
+
+        if ( err?.status === 404 ) {
+          this.externalSearchErrorMessage = "Pokemon not found in external source.";
+          return;
+        }
+
+        if ( err?.status === 403 ) {
+          this.externalSearchErrorMessage = "Access denied. Admin role is required.";
+          return;
+        }
+
+        if ( err?.status === 504 ) {
+          this.externalSearchErrorMessage = "External service timeout. Please try again.";
+          return;
+        }
+
+        this.externalSearchErrorMessage = "Could not fetch external Pokemon data.";
+      }
+    } );
+  }
+
+  public importExternalPokemon(): void {
+    if ( !this.isAdmin || this.isImportingExternal ) {
+      return;
+    }
+
+    const query = this.externalSearchQuery.trim();
+    if ( query.length === 0 ) {
+      this.externalSearchErrorMessage = "Please enter a Pokemon name or ID.";
+      this.externalSearchSuccessMessage = "";
+      return;
+    }
+
+    this.isImportingExternal = true;
+    this.externalSearchErrorMessage = "";
+    this.externalSearchSuccessMessage = "";
+    this.registerErrorMessage = "";
+    this.registerSuccessMessage = "";
+
+    this.pokemonService.importExternalPokemon( query )
+      .pipe( finalize( () => {
+        this.isImportingExternal = false;
+        this.changeDetectorRef.detectChanges();
+      } ) )
+      .subscribe( {
+        next: () => {
+          this.externalPreviewLoaded = false;
+          this.externalSearchSuccessMessage = "Pokemon imported successfully from external source.";
+          this.registerSuccessMessage = "Pokemon imported and registered successfully.";
+          this.newPokemon = this.createEmptyPokemon();
+          this.externalSearchQuery = "";
+          this.loadPage( 0 );
+        },
+        error: ( err ) => {
+          if ( err?.status === 400 ) {
+            this.externalSearchErrorMessage = "Pokemon already exists in local Pokedex.";
+            return;
+          }
+
+          if ( err?.status === 404 ) {
+            this.externalSearchErrorMessage = "Pokemon not found in external source.";
+            return;
+          }
+
+          if ( err?.status === 403 ) {
+            this.externalSearchErrorMessage = "Access denied. Admin role is required.";
+            return;
+          }
+
+          if ( err?.status === 504 ) {
+            this.externalSearchErrorMessage = "External service timeout. Please try again.";
+            return;
+          }
+
+          this.externalSearchErrorMessage = "Could not import Pokemon from external source.";
+        }
+      } );
   }
 }

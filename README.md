@@ -7,175 +7,190 @@
 [![Swagger](https://img.shields.io/badge/Swagger-3-green)](https://swagger.io/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
 [![Angular](https://img.shields.io/badge/Angular-21-red)](https://angular.dev/)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38bdf8)](https://tailwindcss.com/)
 
-A complete REST API for managing a Pokedex, implemented with Spring Boot. The project is delivered incrementally by phases, with each phase extending the existing baseline.
+Spring Boot + Angular Pokédex application delivered by phases. The backend owns authentication, authorization, business rules, and PokeAPI integration. The frontend consumes only the local API.
 
 ## Phase Progress
 
-- Phase 1: Completed (Pokemon CRUD API, validation, global exception handling, pagination, Swagger, tests)
-- Phase 2: Completed (authentication and authorization with Spring Security and JWT, Dockerization)
-- Phase 3: In progress (Web user interface)
+- Phase 1: Completed (Pokemon CRUD API, validation, pagination, Swagger, tests)
+- Phase 2: Completed (authentication and authorization with Spring Security and JWT)
+- Phase 3: Completed baseline (Angular UI for login and Pokédex interactions)
+- Phase 4: In progress (external PokeAPI integration for admin import/search)
 
-## Project Description
+## What The Application Does
 
-This project implements a digital Pokedex that allows:
-- Register newly discovered Pokemon
-- Update the capture status of a Pokemon
-- Query detailed information of existing Pokemon
-- List all Pokemon with pagination (sorted by Pokedex ID in ascending order)
-- Delete Pokemon from the registry
+- List Pokemons with pagination
+- Retrieve Pokemon details by Pokédex ID
+- Register and delete Pokemons ( `ADMIN` )
+- Mark a Pokemon as captured ( `USER` and `ADMIN` )
+- Authenticate with JWT
+- Search and import Pokemon data from PokeAPI through the backend ( `ADMIN` )
 
-The application follows a clean architecture with separation between feature modules and shared components.
+## PO / QA Quick Start
 
-## How to Run This Project
+### Recommended Local Windows Setup
 
-You can run this project in two ways: using Docker (recommended for a quick setup) or running it locally on your machine. The Docker option starts all three services together: PostgreSQL, the Spring Boot API, and the Angular frontend.
+This is the most reliable setup for PO/QA validation in the current corporate network because Java can reuse the Windows certificate store.
 
-### Option A: Running with Docker (Recommended)
+#### Prerequisites
 
-This is the easiest way to get started, as it handles all dependencies for you.
+- Java 17+
+- Node.js 20+
+- PostgreSQL running locally on port `5432`
+- Optional: Bruno or Postman for API validation
 
-**Prerequisites:**
-*   Docker and Docker Compose
+#### Backend configuration
 
-**Steps:**
+The backend now reads environment variables with safe defaults, so `application.properties` should not need manual edits.
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/albsanchez05/albprojects-pokedex.git
-    cd albprojects-pokedex
-    ```
+For the current default setup:
 
-2.  **Build and Run with Docker Compose**
-    Execute the following command from the project root. It will build the Java app, create a Docker image, and start both the application and PostgreSQL containers.
-    ```bash
-    docker-compose up --build -d
-    ```
+- Database: `pokedex_database`
+- User: `professor-oak`
+- Password: `gottacatchthemall`
+- API port: `8082`
 
-3.  **Access the Application**
-    *   **Frontend (Angular SPA)**: `http://localhost:4200`
-    *   **API & Swagger UI**: `http://localhost:8082/swagger-ui.html`
-    *   **Database (for inspection)**: Host `localhost`, Port `5444`, DB `pokedex_database`, User `professor-oak`, Pass `gottacatchthemall`.
+#### Important note for corporate networks
 
-4.  **Stopping the Application**
-    ```bash
-    docker-compose down -v
-    ```
+If HTTPS traffic is inspected by a corporate certificate, set these JVM options before running the backend locally on Windows:
 
-### Option B: Running Locally
+```powershell
+$env:MAVEN_OPTS="-Djavax.net.ssl.trustStoreType=Windows-ROOT -Djava.net.useSystemProxies=true"
+```
 
-Use this option if you prefer to run the application directly on your host machine.
+Then start the backend:
 
-**Prerequisites:**
-*   Java 17 or higher
-*   Maven 3.6+
-*   A running PostgreSQL instance
+```powershell
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex"
+.\mvnw.cmd spring-boot:run
+```
 
-**Steps:**
+Start the frontend in another terminal:
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/albsanchez05/albprojects-pokedex.git
-    cd albprojects-pokedex
-    ```
+```powershell
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex\frontend"
+npm install
+npm start
+```
 
-2.  **Configure and Run the Database**
-    Ensure your PostgreSQL instance is running. You may need to create a database and user, and then update the credentials in `src/main/resources/application.properties`:
-    ```properties
-    spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
-    spring.datasource.username=your_user
-    spring.datasource.password=your_password
-    ```
-    *Note: The project defaults to port `5432` for local development. When running with Docker, switch the active `spring.datasource.url` in `application.properties` to the Docker port `5444`.*
+#### URLs
 
-3.  **Run the Application with Maven**
-    ```bash
-    ./mvnw spring-boot:run
-    ```
+- Frontend: `http://localhost:4200`
+- Swagger UI: `http://localhost:8082/swagger-ui.html`
+- API base URL: `http://localhost:8082/api`
 
-4.  **Access the Application**
-    *   **API & Swagger UI**: `http://localhost:8082/swagger-ui.html`
+#### Test users
 
-### Option C: Running the Frontend Locally
+- `admin` / `Admin@123` -> fallback admin account for local manual testing
+- `po-admin` -> seeded `ADMIN` user for PO validation
+- `qa-user` -> seeded `USER` user for QA validation
 
-The Angular SPA lives in the `frontend/` directory and runs independently from the backend.
+> The plain passwords for `po-admin` and `qa-user` are intentionally not stored in the repository. Share them out-of-band if these dedicated accounts are part of UAT. If they are not available yet, PO/QA can still validate admin flows with `admin` and user flows with a freshly registered regular user.
 
-**Prerequisites:**
-*   Node.js 20 or higher
-*   npm 10 or higher
+## Docker Setup
 
-**Steps:**
+### Standard Docker run
 
-1.  **Navigate to the frontend directory**
-    ```bash
-    cd frontend
-    ```
+Use this when the machine can reach public HTTPS endpoints without a custom corporate certificate requirement.
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+```powershell
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex"
+Copy-Item ".env.example" ".env" -Force
+docker-compose up --build -d
+```
 
-3.  **Start the dev server**
-    ```bash
-    npm run start
-    ```
+Access:
 
-4.  **Access the frontend**
-    *   **Angular SPA**: `http://localhost:4200`
-    *   The backend API must be running on `http://localhost:8082` for the frontend to function.
+- Frontend: `http://localhost:4200`
+- Swagger UI: `http://localhost:8082/swagger-ui.html`
+- PostgreSQL: `localhost:5444`
 
-## Testing the API
+Stop:
 
-To make testing easy, this project includes pre-configured collections for popular API clients. These collections automatically handle authentication tokens.
+```powershell
+docker-compose down -v
+```
 
-### For Postman Users
+### Docker in a corporate network
 
-1.  **Install Postman**: Download it from the [Postman website](https://www.postman.com/downloads/).
-2.  **Import the Collection**:
-    *   Open Postman and click `File > Import...`.
-    *   Select the file `postman/Pokedex API.postman_collection.json` from this project.
-3.  **Run the `Login` Request**:
-    *   In the imported collection, expand the `Auth` folder and click on the `Login` request.
-    *   Click the `Send` button. This will authenticate you and automatically save the token.
-4.  **Test Other Endpoints**: Now you can run any other request (like `Get All Pokemons`) and it will be automatically authenticated.
+The current Docker image runs on Linux. It cannot use `Windows-ROOT`, so if the network re-signs HTTPS traffic, external PokeAPI calls may fail unless a trusted Java truststore is provided.
 
-### For Bruno Users
+The compose file now supports `JAVA_TOOL_OPTIONS` through `.env`.
 
-1.  **Install Bruno**: Download it from the [Bruno website](https://www.usebruno.com/downloads).
-2.  **Open the Collection**:
-    *   In Bruno, click `Open Collection`.
-    *   In the file dialog, navigate into the `bruno` directory and select the **`Pokedex API`** folder.
-3.  **Select the Environment**:
-    *   In the top-right corner of the Bruno window, click the dropdown menu that says `No Environment`.
-    *   Select **`Local_Environment`** from the list. This is crucial for the API URLs to work.
-4.  **Run the `Login` Request**:
-    *   Expand the `Auth` folder and click on the `Login_User` request.
-    *   Click the "play" button (▶️). This will authenticate you and automatically save the token.
-5.  **Test Other Endpoints**: Now you can run any other request and it will be automatically authenticated.
+Example:
+
+```dotenv
+JAVA_TOOL_OPTIONS=-Djavax.net.ssl.trustStore=/app/certs/company-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit
+```
+
+This requires a truststore prepared outside the repository and made available to the container runtime.
+
+## Environment Variables
+
+The project root contains `.env.example` with the main Docker variables used by PO/QA.
+
+Most important backend variables:
+
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
+- `INTEGRATION_POKEAPI_BASE_URL`
+- `INTEGRATION_POKEAPI_CONNECT_TIMEOUT_MS`
+- `INTEGRATION_POKEAPI_READ_TIMEOUT_MS`
+- `INTEGRATION_POKEAPI_ENABLED`
+- `JAVA_TOOL_OPTIONS` ( Docker only, optional )
+
+## API Client Collections
+
+### Bruno
+
+1. Open the `bruno/Pokedex API` collection.
+2. Select environment `Local_Environment`.
+3. Run `Auth/Login_User` or another login request.
+4. Use the saved token for protected endpoints.
+
+### Postman
+
+1. Import `postman/Pokedex API.postman_collection.json`.
+2. Run the login request first.
+3. Reuse the saved token for the protected requests.
+
+## Phase 4 Manual Validation
+
+### Backend
+
+- `GET /api/pokemons/external/25` as `ADMIN` -> expected `200`
+- `GET /api/pokemons/external/pikachu` as `ADMIN` -> expected `200`
+- `POST /api/pokemons/external/pikachu/import` -> expected `200` on first import, `400` on duplicate import
+- Same external endpoints as `USER` -> expected `403`
+
+### Frontend
+
+- Login as `ADMIN`
+- Open `+ Register Pokemon`
+- Search `pikachu` or `25` in the external import panel
+- Confirm form prefill and successful import to local DB
+- Login as `USER` and confirm the register/import panel is not visible
 
 ## Running Tests
 
-To run the suite of integration and unit tests, you can use the standard Maven command. This does not require Docker.
+Backend:
 
-```bash
-./mvnw test
+```powershell
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex"
+.\mvnw.cmd test
+```
+
+Frontend:
+
+```powershell
+cd "C:\Users\aasanchez\OneDrive - Sopra Steria\Documents\JAVA\albprojects-pokedex\frontend"
+npm run build
 ```
 
 ## API Documentation
 
-For a quick overview and manual testing, the API documentation is available through Swagger UI once the application is running.
-
-- **Swagger UI URL**: `http://localhost:8082/swagger-ui.html`
-
-## Roadmap
-
-- Phase 1: Core Pokemon API (completed)
-- Phase 2: Authentication and multiple users (completed)
-- Phase 3: Web user interface (in progress)
-- Phase 4: Integration with external APIs (PokeAPI)
-- Phase 5: Advanced features
+- Swagger UI: `http://localhost:8082/swagger-ui.html`
 
 ## Author
 
