@@ -1,3 +1,5 @@
+// File: frontend/src/app/core/services/auth.service.ts
+// Purpose: Implements frontend service logic and backend API communication.
 import { Injectable, Inject, PLATFORM_ID } from "@angular/core";
 import { isPlatformBrowser } from "@angular/common";
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";

@@ -1,3 +1,6 @@
+/* File: frontend/src/app/features/pokemon/pokedex-grid/pokedex-grid.css
+ * Purpose: Defines component or global styles for the frontend UI.
+ */
 .pokedex-scene {
 	background:
 		radial-gradient( circle at 10% 20%, rgba( 255, 255, 255, 0.12 ) 0%, rgba( 255, 255, 255, 0 ) 45% ),

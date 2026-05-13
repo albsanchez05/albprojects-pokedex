@@ -1,3 +1,5 @@
+// File: frontend/src/app/core/components/navbar/navbar.ts
+// Purpose: Defines frontend component logic for UI behavior and interactions.
 import { Component } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { AuthService } from "../../services/auth.service";

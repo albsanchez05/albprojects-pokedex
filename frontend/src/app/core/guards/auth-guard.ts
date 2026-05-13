@@ -1,3 +1,5 @@
+// File: frontend/src/app/core/guards/auth-guard.ts
+// Purpose: Defines route guards for authentication and authorization checks.
 import { inject, PLATFORM_ID } from "@angular/core";
 import { isPlatformBrowser } from "@angular/common";
 import { CanActivateFn, Router } from "@angular/router";

@@ -1,3 +1,5 @@
+// File: frontend/src/app/core/services/pokemon.service.ts
+// Purpose: Implements frontend service logic and backend API communication.
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable } from "rxjs";

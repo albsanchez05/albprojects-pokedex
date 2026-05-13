@@ -1,3 +1,5 @@
+// File: frontend/src/app/features/pokemon/pokedex-grid/pokedex-grid.ts
+// Purpose: Defines frontend component logic for UI behavior and interactions.
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from "@angular/core";
 import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { FormsModule } from "@angular/forms";

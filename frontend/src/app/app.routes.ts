@@ -1,3 +1,5 @@
+// File: frontend/src/app/app.routes.ts
+// Purpose: Defines frontend route configuration for client and server rendering.
 import { Routes } from "@angular/router";
 import { authGuard } from "./core/guards/auth-guard";
 

@@ -1,3 +1,5 @@
+// File: frontend/src/app/app.config.ts
+// Purpose: Defines frontend module logic and configuration.
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { provideClientHydration, withEventReplay } from "@angular/platform-browser";

@@ -1,3 +1,6 @@
+/* File: frontend/src/app/features/pokemon/pokemon-card/pokemon-card.css
+ * Purpose: Defines component or global styles for the frontend UI.
+ */
 .pokemon-card-shell {
 	background: linear-gradient( 180deg, #ffffff 0%, #f8fafc 100% );
 	border: 2px solid #cbd5e1;

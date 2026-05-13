@@ -1,3 +1,5 @@
+// File: frontend/src/app/auth/login/login.spec.ts
+// Purpose: Contains frontend unit tests for components and services.
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Login } from './login';

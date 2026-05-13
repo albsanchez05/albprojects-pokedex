@@ -1,3 +1,5 @@
+<!-- File: frontend/README.md; Purpose: Provides project, phase, or operational documentation. -->
+
 # Pokédex Frontend
 
 Angular frontend for the Pokédex project. It consumes the local Spring Boot API and never calls PokeAPI directly.

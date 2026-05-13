@@ -1,3 +1,5 @@
+// File: frontend/src/app/app.spec.ts
+// Purpose: Contains frontend unit tests for components and services.
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 

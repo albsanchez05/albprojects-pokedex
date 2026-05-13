@@ -1,3 +1,6 @@
+/* File: frontend/src/app/features/pokemon/pokemon-detail/pokemon-detail.css
+ * Purpose: Defines component or global styles for the frontend UI.
+ */
 .detail-scene {
 	background:
 		radial-gradient( circle at 92% 8%, rgba( 255, 255, 255, 0.14 ) 0%, rgba( 255, 255, 255, 0 ) 42% ),

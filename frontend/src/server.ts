@@ -1,3 +1,5 @@
+// File: frontend/src/server.ts
+// Purpose: Bootstraps frontend runtime entry points and application startup.
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,

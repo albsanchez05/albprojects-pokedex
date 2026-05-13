@@ -1,3 +1,5 @@
+// File: frontend/src/app/auth/register/register.ts
+// Purpose: Defines frontend component logic for UI behavior and interactions.
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";

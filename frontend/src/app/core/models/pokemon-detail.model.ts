@@ -1,3 +1,5 @@
+// File: frontend/src/app/core/models/pokemon-detail.model.ts
+// Purpose: Defines typed frontend models used by components and services.
 export interface PokemonDetailModel {
   pokemonId: number;
   name: string;

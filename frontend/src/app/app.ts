@@ -1,3 +1,5 @@
+// File: frontend/src/app/app.ts
+// Purpose: Defines frontend module logic and configuration.
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 

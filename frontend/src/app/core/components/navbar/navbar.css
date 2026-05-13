@@ -1,3 +1,6 @@
+/* File: frontend/src/app/core/components/navbar/navbar.css
+ * Purpose: Defines component or global styles for the frontend UI.
+ */
 .pokedex-navbar {
 	align-items: center;
 	background: linear-gradient( 180deg, #ef4444 0%, #d61f1f 100% );

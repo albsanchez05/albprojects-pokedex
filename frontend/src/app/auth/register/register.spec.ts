@@ -1,3 +1,5 @@
+// File: frontend/src/app/auth/register/register.spec.ts
+// Purpose: Contains frontend unit tests for components and services.
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Register } from './register';

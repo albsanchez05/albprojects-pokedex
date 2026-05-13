@@ -1,3 +1,5 @@
+// File: frontend/src/app/features/pokemon/pokemon-detail/pokemon-detail.ts
+// Purpose: Defines frontend component logic for UI behavior and interactions.
 import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
